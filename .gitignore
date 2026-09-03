@@ -1,0 +1,62 @@
+# ---- Environment & secrets -------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---- Node / frontend (React + Vite) ----------------------------------------
+node_modules/
+dist/
+dist-ssr/
+build/
+.vite/
+*.local
+*.tsbuildinfo
+.eslintcache
+
+# ---- Go / backend ----------------------------------------------------------
+bin/
+*.exe
+*.test
+*.out
+coverage.out
+vendor/
+
+# ---- Python (tooling, scripts, possible speech sidecar) --------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ---- Embedded / firmware ---------------------------------------------------
+.pio/
+.pioenvs/
+.piolibdeps/
+*.bin
+*.elf
+*.hex
+
+# ---- Captured audio --------------------------------------------------------
+# Recordings on this project are sensitive personal data. Keep them out of git.
+# See docs/safety-and-privacy.md
+*.wav
+*.raw
+*.pcm
+*.flac
+*.mp3
+*.m4a
+recordings/
+
+# ---- Editors & OS ----------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Logs & temp -----------------------------------------------------------
+*.log
+tmp/
+.cache/

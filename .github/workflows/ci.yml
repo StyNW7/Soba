@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Read-only by default. Widen per job only if something ever needs to write.
+permissions:
+  contents: read
+
+# A new push to the same branch cancels the run it superseded, so we don't
+# burn Actions minutes on results nobody will look at.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Which parts of the repo actually have code yet? The build jobs below stay
+  # switched off until the module they cover exists, so CI is green on a repo
+  # that is still mostly documentation. Each job turns itself on automatically
+  # in the same PR that adds the module. Nobody has to remember to wire it up.
+  detect:
+    name: Detect modules
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.check.outputs.backend }}
+      frontend: ${{ steps.check.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f backend/go.mod ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::backend/go.mod not found - skipping backend job"
+          fi
+          if [ -f frontend/package.json ]; then
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frontend=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::frontend/package.json not found - skipping frontend job"
+          fi
+
+  docs:
+    name: Docs and secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No .env committed
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is tracked in git. Remove it and rotate every key it held."
+            exit 1
+          fi
+          echo "OK: no .env tracked"
+
+      - name: Links resolve and no secrets in .env.example
+        run: python3 scripts/check_docs.py
+
+  backend:
+    name: Backend
+    needs: detect
+    if: needs.detect.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::These files need gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+          echo "OK: gofmt clean"
+
+      - run: go vet ./...
+      - run: go build ./...
+      - run: go test ./... -race
+
+  frontend:
+    name: Frontend
+    needs: detect
+    if: needs.detect.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      # Works with either lockfile, so the first person to scaffold the app
+      # does not land a red build just for picking pnpm over npm.
+      - name: Pick package manager
+        id: pm
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "manager=pnpm" >> "$GITHUB_OUTPUT"
+          else
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.pm.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: ${{ steps.pm.outputs.manager }}
+          cache-dependency-path: frontend/${{ steps.pm.outputs.manager == 'pnpm' && 'pnpm-lock.yaml' || 'package-lock.json' }}
+
+      - name: Install
+        run: |
+          if [ "${{ steps.pm.outputs.manager }}" = "pnpm" ]; then
+            pnpm install --frozen-lockfile
+          elif [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      # Each of these runs only if the script is actually defined, so the app
+      # can land before its lint and test setup does.
+      - name: Lint
+        run: npm run --if-present lint
+
+      - name: Typecheck
+        run: npm run --if-present typecheck
+
+      - name: Test
+        run: npm run --if-present test
+
+      - name: Build
+        run: npm run --if-present build
