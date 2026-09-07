@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly backup_dir=/opt/soba/backups
+readonly container=soba-postgres-1
+readonly timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+readonly destination="${backup_dir}/soba-${timestamp}.dump"
+
+install -d -m 0700 "${backup_dir}"
+temporary="$(mktemp "${backup_dir}/.soba-backup.XXXXXX")"
+trap 'rm -f "${temporary}"' EXIT
+
+docker exec "${container}" pg_dump --username=soba --dbname=soba --format=custom >"${temporary}"
+test -s "${temporary}"
+chmod 0600 "${temporary}"
+mv "${temporary}" "${destination}"
+trap - EXIT
+
+find "${backup_dir}" -maxdepth 1 -type f -name 'soba-*.dump' -mtime +7 -delete
