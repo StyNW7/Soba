@@ -1,100 +1,84 @@
 # Architecture
 
-How Soba's parts fit together, what each one owns, and what is still undecided.
+Soba uses one Go backend and PostgreSQL. The backend is the only component that
+talks to identity, speech, language, and push providers. The client and device
+send requests to the backend and never receive provider credentials.
 
-## The conversation loop
-
-Everything Soba does revolves around one loop: the user says something to the doll, and the
-doll says something back.
+## Runtime shape
 
 ```mermaid
-sequenceDiagram
-    participant U as User
-    participant D as Doll (IoT)
-    participant B as Backend (Go)
-    participant A as AssemblyAI
-    participant L as LLM
-    participant T as TTS
-    participant W as Web app
-
-    U->>D: speaks
-    D->>D: wake word / voice activity detection
-    D->>B: stream captured audio
-    B->>A: forward audio
-    A-->>B: transcript
-    B->>B: safety check on transcript
-    B->>L: transcript + conversation context
-    L-->>B: empathetic reply
-    B->>B: safety check on reply
-    B->>T: reply text
-    T-->>B: audio
-    B-->>D: reply audio
-    D->>U: speaks reply
-    B->>B: persist turn (transcript, mood signals)
-    W->>B: fetch history / mood trends
+flowchart LR
+    client[Web or mobile client] --> api[Go API]
+    device[Device or host test] -->|WebSocket voice| api
+    api --> db[(PostgreSQL 17)]
+    api --> stt[Deepgram Nova-3]
+    api --> ai[OpenAI Responses]
+    api --> tts[OpenAI gpt-4o-mini-tts]
+    api --> push[FCM]
+    api --> objects[(Private encrypted export volume)]
 ```
 
-The two safety checks in that sequence are not optional. See
-[`safety-and-privacy.md`](safety-and-privacy.md).
+`backend/internal/app` is the composition root. It opens the configured
+providers, validates the reviewed fallback content, and registers all 87 API
+operations. Startup holds a PostgreSQL advisory lock derived from the current
+database and schema. A second instance fails before it can serve traffic.
 
-## Components
+The API process has one background loop for data jobs and one for support
+notification jobs. A bounded PostgreSQL pool handles requests. The first pilot
+uses one API replica, at most 10 active voice sessions, 20 database
+connections, five idle connections, and a five-second API statement timeout.
+These are operating limits and starting measurements, not a capacity claim.
 
-### `iot/` — the doll
+## Request and voice flow
 
-Captures audio, decides when the user is actually talking to it, streams that audio to the
-backend, and plays the reply. Also owns whatever physical feedback the doll gives — light,
-haptics, movement.
+1. `httpapi.Server` validates the generated OpenAPI request, origin, rate
+   limit, authentication, and CSRF rules.
+2. Authenticated writes run in a transaction. The owner ID comes from the
+   verified session or device credential, never from a request body.
+3. Voice tickets are short-lived and single-use. `VoiceEngine` accepts raw
+   16 kHz mono PCM, sends it to Deepgram, runs safety assessment before reply
+   generation, checks the complete reply, and only then streams approved 24 kHz
+   mono PCM from TTS.
+4. A conversation ends with a transient draft. The user can save journal,
+   mood, and memory candidates independently. A no-save session leaves no
+   durable transcript or draft content.
+5. Serious or uncertain safety results use reviewed fallback content. They do
+   not ask a general model to invent crisis wording.
 
-Deliberately thin: the doll should not hold conversation state or make judgement calls
-about what the user said. That lives in the backend, where it can be fixed without
-reflashing anything.
+On startup, active sessions become `interrupted` and review sessions become
+`expired`; unsaved draft metadata cannot be recovered. On close, active voice
+peers receive a restart signal and all transient tickets, drafts, and safety
+events are discarded.
 
-Hardware is **not chosen yet** — see [`hardware.md`](hardware.md).
+## Data boundaries
 
-### `backend/` — the brain
+- PostgreSQL stores owner records, consent, device credentials as hashes,
+  short-lived encrypted replay values, and content-free operational metadata.
+- Raw audio, prompts, generated replies, and transcript text are not stored by
+  the migration schema.
+- Export objects are encrypted before they enter the private filesystem volume.
+  The volume is a pilot adapter for a private object bucket and has no public
+  HTTP path.
+- Account and history deletion cancel active work, remove saved content, revoke
+  device/session authority as required, and retain only a short-lived deletion
+  ledger. A provider-deletion requirement can keep a job in
+  `waiting_provider` until an operator completes the external deletion review.
 
-A Go service that owns:
+## Configuration and disabled paths
 
-- the speech pipeline (audio in, transcript out, reply audio back)
-- conversation state and context assembly for the LLM
-- safety checks on both what the user said and what Soba is about to say
-- persistence — conversation turns, mood signals, device registration
-- the REST API the web app reads from
+`platform.LoadConfig` rejects invalid base64 key sizes, unsafe production URLs,
+unknown boolean flags, and unapproved minor enrollment. Voice requires
+Deepgram, OpenAI, and a current reviewed content pack. Alerts require FCM
+project configuration and application credentials. Both paths are disabled by
+default.
 
-### `frontend/` — the web app
+The local Compose file uses PostgreSQL 17 and private named volumes. See
+[Runtime operations](implementation/Runtime-Operations.md) for startup,
+backup, deletion, key rotation, and incident procedures.
 
-Where the user sees their own history: what they talked about, how their mood has moved
-over time, and control over the doll and their data — including deleting it.
+## Device and client boundaries
 
-### AssemblyAI
-
-Speech-to-text. Called from the backend, never directly from the doll (the API key must not
-live on a device that can be opened with scissors). Details in
-[`speech-pipeline.md`](speech-pipeline.md).
-
-## Boundaries worth keeping
-
-- **The doll never holds an API key for a third-party service.** It authenticates to our
-  backend and nothing else.
-- **The doll is replaceable.** A phone app or a browser tab should be able to stand in as an
-  audio source for development, so nobody is blocked on hardware.
-- **The frontend never talks to AssemblyAI or the LLM directly.** One backend, one place
-  where safety checks and data retention are enforced.
-
-## Open questions
-
-These need answers before the corresponding implementation work starts. Nobody should
-guess quietly — write the decision down here when it is made.
-
-| # | Question | Blocks |
-| - | -------- | ------ |
-| 1 | Device ↔ backend transport: WebSocket streaming, chunked HTTP, or MQTT + object storage? | firmware, backend |
-| 2 | Streaming transcription (low latency, harder) or batch per utterance (simpler, slower)? | speech pipeline |
-| 3 | Where does TTS run — cloud provider, or synthesised on-device? | firmware, backend |
-| 4 | How does a doll authenticate? Per-device keys provisioned at flash time, or a pairing flow through the web app? | firmware, backend, frontend |
-| 5 | Which LLM provider, and does conversation context leave our infrastructure? | backend, privacy review |
-| 6 | Do transcripts persist by default, or is the default ephemeral with opt-in history? | backend, frontend, privacy review |
-| 7 | Multi-user: is one doll bound to one person, or shared in a household? | data model, everything |
-
-Questions 5 and 6 are as much privacy decisions as technical ones — take them to
-[`safety-and-privacy.md`](safety-and-privacy.md) before settling them.
+The device uses a cloud operational credential after an offline factory
+enrollment and owner claim. It does not hold third-party keys. The client can
+drive the same voice contract for development, so hardware is not a dependency
+for backend work. See [Hardware](hardware.md) for the open electronics choice.

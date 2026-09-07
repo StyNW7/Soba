@@ -65,6 +65,22 @@ jobs:
     needs: detect
     if: needs.detect.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: soba
+          POSTGRES_PASSWORD: soba-test-password
+          POSTGRES_DB: soba_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U soba -d soba_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      SOBA_TEST_DATABASE_URL: postgres://soba:soba-test-password@127.0.0.1:55432/soba_test?sslmode=disable
     defaults:
       run:
         working-directory: backend
@@ -72,7 +88,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: backend/go.mod
+          go-version: '1.27.1'
           cache-dependency-path: backend/go.sum
 
       - name: Formatting
@@ -87,7 +103,38 @@ jobs:
 
       - run: go vet ./...
       - run: go build ./...
+      - name: Vulnerability scan
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
       - run: go test ./... -race
+
+  firmware-host:
+    name: Firmware host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S iot/host_tests -B iot/host_tests/build
+      - name: Build
+        run: cmake --build iot/host_tests/build --parallel
+      - name: Test
+        run: ctest --test-dir iot/host_tests/build --output-on-failure
+
+  reprocontract:
+    name: Reproduce API contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install contract validator dependencies
+        run: python -m pip install -r docs/implementation/validation/requirements.txt
+      - name: Validate specification
+        run: python docs/implementation/validation/validate_spec.py
+      - name: Regenerate runtime contract
+        run: python scripts/generate_runtime_contract.py
+      - name: Require generated contract to be committed
+        run: git diff --exit-code -- backend/internal/httpapi/contract.json
 
   frontend:
     name: Frontend

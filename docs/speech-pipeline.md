@@ -1,96 +1,62 @@
 # Speech pipeline
 
-Audio in, transcript out, reply audio back. This is the part of Soba that has to feel
-instant, and it is the part with the most unresolved decisions.
+The backend owns the audio path. The device or a browser test sends raw PCM to
+the `/v1/voice` WebSocket. Provider keys stay in the backend.
 
-## Speech to text: AssemblyAI
+## Current provider contract
 
-[AssemblyAI](https://www.assemblyai.com/docs) handles transcription. It offers two modes,
-and we have not committed to one:
+| Stage | Adapter | Contract |
+| --- | --- | --- |
+| Speech to text | Deepgram Nova-3 | WebSocket, Indonesian `id`, 16 kHz, 16-bit signed little-endian mono PCM |
+| Assessment and reply | OpenAI Responses | `store=false`, strict JSON Schema output, no tools, bounded timeouts |
+| Text to speech | OpenAI `gpt-4o-mini-tts` | Approved text only, raw 24 kHz signed PCM output |
 
-| | Streaming | Batch (async) |
-| - | --------- | ------------- |
-| How | Open a WebSocket, push audio frames, receive partial and final transcripts as the user speaks | Upload the whole utterance, poll or receive a webhook when the transcript is ready |
-| Latency | Low — the reply can start forming while the user is still talking | Higher — nothing happens until the user stops |
-| Complexity | Connection lifecycle, reconnects, backpressure | An upload and a callback |
-| Good for | A doll that feels alive | Getting something working this week |
+The model names are configuration. Pin and review provider versions before a
+real-user release. Provider terms, region, retention, and training settings are
+release gates.
 
-**Recommendation:** start with batch per utterance to get the loop closed end to end, then
-move to streaming once the rest of the pipeline is stable. Do not let the transport choice
-block the conversation logic.
+## Per-turn flow
 
-### The Go trade-off, written down
+1. The client sends a short-lived voice ticket or a device bearer credential.
+2. The server checks owner, device, consent, policy version, deletion state,
+   locale, and the single active-session rule.
+3. The client starts an input turn and sends 644-byte input frames: a 4-byte
+   big-endian sequence followed by 640 bytes of PCM. Gaps, oversized buffers,
+   and invalid audio fail the turn.
+4. Deepgram interim text is sent to the client for display. A finalized
+   transcript is used once; duplicate provider finals do not create duplicate
+   replies.
+5. The safety pipeline assesses the transcript. Serious or uncertain signals
+   select reviewed fallback text. Only a normal, approved route calls reply
+   generation.
+6. The full candidate reply passes a second strict check. Unapproved text never
+   reaches TTS. TTS output is sent as 24 kHz mono PCM frames with a response
+   sequence, so the client can discard late audio after cancel.
+7. On session end, the server creates a short-lived review draft only when a
+   structured draft was produced. It does not store raw audio or transcript
+   text.
 
-The backend is Go, which was a deliberate choice. The cost of that choice, so nobody
-rediscovers it mid-sprint:
+## Fallback and outage rules
 
-**AssemblyAI does not publish a first-party Go SDK.** Their maintained SDKs are Python and
-JavaScript. In Go you have three options:
+The safety package has no built-in clinical or crisis script. `app.New` loads a
+reviewed JSON content pack with `Version`, `Locale`, `Approved`,
+`ReviewExpires`, `GeneralText`, `SeriousText`, and reviewed activities. It
+rejects missing, expired, duplicate, or mismatched content before enabling
+voice. An outage can therefore produce a bounded reviewed response or a clear
+degraded error, but it cannot produce guessed clinical wording.
 
-1. **Call the REST API directly** — straightforward for batch transcription. Upload, poll,
-   done. This is a small amount of ordinary HTTP code.
-2. **Hand-roll the streaming WebSocket client** — for realtime. More work: you own the
-   framing, keepalives, reconnect logic, and partial-transcript handling.
-3. **Run a small Python sidecar** for the streaming session only, and talk to it over a
-   local socket. Keeps the mature SDK, adds a process to deploy.
+Set `VOICE_ENABLED=false` to stop new cloud sessions while keeping account and
+static support tools available. Existing sessions are cancelled during app
+shutdown. No provider call is retried with old audio or old prompt data.
 
-Option 1 for batch is easy and uncontroversial. The decision between 2 and 3 only matters
-once we commit to streaming. **Decide before starting realtime work, not during it.**
+## Testing without a provider or device
 
-### Audio format
+The adapters accept injectable HTTP/WebSocket clients for tests. The Go suite
+covers malformed provider responses, cancellation, strict output schemas,
+duplicate finals, approval gates, and PCM bounds. The firmware host tests cover
+frame sequence and response handling. Use synthetic fixtures only; do not copy
+real conversations into tests.
 
-AssemblyAI's streaming API expects raw mono PCM. Assume until proven otherwise:
-
-- 16 kHz sample rate
-- 16-bit signed little-endian
-- single channel
-
-The doll should capture in this format directly rather than resampling on the backend —
-resampling costs latency and quality for no benefit. **Confirm against the current
-AssemblyAI documentation before the firmware locks its capture settings.**
-
-### The API key
-
-Lives in the backend, in `ASSEMBLYAI_API_KEY`. It never reaches the doll and never reaches
-the browser. A doll is a physical object that can be taken apart; treat anything flashed to
-it as public.
-
-## Reply generation
-
-The transcript plus recent conversation context goes to an LLM, which produces the reply
-Soba speaks. Provider is an open question (see
-[`architecture.md`](architecture.md#open-questions)).
-
-Two things are not optional regardless of provider:
-
-- **A safety check on the transcript before generation** — if someone is describing a
-  crisis, the response path is different and does not run through a general chat model.
-- **A safety check on the reply before it is spoken** — Soba speaks out loud, in someone's
-  room, possibly to a child. See [`safety-and-privacy.md`](safety-and-privacy.md).
-
-## Text to speech
-
-Turns the reply into audio the doll plays. Provider undecided. The choice interacts with
-hardware: cloud TTS means the doll only needs to play a stream, on-device TTS means the
-board needs the headroom to synthesise. See [`hardware.md`](hardware.md).
-
-Whatever we pick, the voice is part of the product. A companion doll that sounds like a
-call-centre IVR is a worse product than one that sounds warm, independent of how good the
-words are.
-
-## Latency budget
-
-For the doll to feel like it is listening rather than processing, aim for **under ~1.5
-seconds** from the user finishing a sentence to Soba starting to speak. Rough split to
-design against:
-
-| Stage | Budget |
-| ----- | ------ |
-| Capture + endpointing on device | 200 ms |
-| Upload / stream to backend | 100 ms |
-| Transcription | 300 ms (streaming) |
-| Reply generation | 600 ms (first token, if streamed to TTS) |
-| TTS first audio | 300 ms |
-
-These are targets to design against, not measurements. Replace them with real numbers once
-the loop runs end to end.
+Latency values in the operations specification are starting budgets. Measure
+Indonesian speech, endpointing, first audio, cancellation, and network-loss
+behaviour with an approved evaluation set before raising session limits.

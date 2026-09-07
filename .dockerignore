@@ -1,0 +1,13 @@
+.git
+.env
+.env.*
+**/*.secret
+**/work
+**/build
+**/managed_components
+**/node_modules
+**/.venv
+**/private-data
+**/sdkconfig
+**/sdkconfig.old
+frontend

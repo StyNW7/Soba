@@ -1,70 +1,71 @@
-# Backend
+# Soba backend
 
-The Go service behind Soba. It owns the speech pipeline, conversation logic, safety checks,
-persistence, and the API the web app reads from.
+The backend is a Go modular monolith. It owns authentication, device claims,
+voice sessions, safety checks, wellbeing records, permissioned support, push
+dispatch, exports, deletion, and retention jobs.
 
-**Status: not scaffolded.** This directory holds documentation only. There is no `go.mod`
-yet and nothing to run.
+Build and run the backend with Go 1.27.1.
 
-## Stack
+## Run
 
-| | |
-| - | - |
-| Language | Go |
-| Database | PostgreSQL |
-| Driver | `pgx` |
-| Migrations | Plain `.sql` files, applied in order. No ORM. |
+Use the root [Compose setup](../README.md#local-backend) for a local PostgreSQL
+17 database. The API command performs the versioned migration check before it
+starts:
 
-## Responsibilities
-
-- **Speech pipeline** — accept audio, transcribe it via AssemblyAI, synthesise the reply
-  back to audio. See [`../docs/speech-pipeline.md`](../docs/speech-pipeline.md).
-- **Conversation** — assemble context, generate the reply, persist the turn.
-- **Safety** — check the transcript before generation and the reply before synthesis. This
-  is the backend's job specifically because it is the one place every path goes through.
-  See [`../docs/safety-and-privacy.md`](../docs/safety-and-privacy.md).
-- **Devices** — register and authenticate dolls.
-- **API** — REST for the web app; the device transport is still an open question.
-
-## Planned layout
-
-```
-backend/
-├── cmd/
-│   └── api/              # entrypoint
-└── internal/
-    ├── httpapi/          # handlers, routing, middleware
-    ├── speech/           # AssemblyAI client, audio handling, TTS
-    ├── conversation/     # context assembly, reply generation
-    ├── safety/           # risk detection, crisis path, reply checks
-    ├── store/            # pgx access + migrations/
-    └── auth/             # user sessions and device credentials
+```bash
+go run ./cmd/api
 ```
 
-Nothing is fixed until someone writes it, but this mirrors the structure already in use in
-`ruteaman-app/server/` — same `cmd/` + `internal/` split, same plain-SQL migrations, no ORM.
+The separate migration command is useful in deployment pipelines:
 
-## Notes for whoever starts this
+```bash
+go run ./cmd/migrate
+```
 
-- **AssemblyAI has no first-party Go SDK.** For batch transcription their REST API is
-  ordinary HTTP and this is a non-issue. For realtime streaming you are hand-rolling a
-  WebSocket client or standing up a small Python sidecar — that decision is documented,
-  unmade, and should be made before realtime work starts, not during it. See
-  [`../docs/speech-pipeline.md`](../docs/speech-pipeline.md).
-- **Accept audio from ordinary clients**, not just the doll — a script or a browser tab must
-  be able to drive the pipeline so nobody is blocked on hardware that does not exist yet.
-- **Keys stay here.** The AssemblyAI key, the LLM key, and the TTS key live in this service
-  and never reach the doll or the browser.
-- **Safety checks are not middleware you can skip in development.** If they are easy to
-  bypass locally, they will eventually be bypassed in production.
+The admin command is offline and database-only. It enrolls a factory device
+with a unique hashed bootstrap secret, or imports reviewed content/resources:
 
-## Getting started
+```bash
+go run ./cmd/admin device-enroll --device-id UUID --secret-file ./device.secret
+go run ./cmd/admin import --file ./reviewed-content.json --allowed-host support.example.org
+```
 
-Not scaffolded yet. Whoever picks this up first: `go mod init`, lay out `cmd/api` with a
-health endpoint, commit that as its own change, and update this README with real run
-instructions.
+The secret file is created with mode `0600` and is never printed. The import
+command accepts only approved records and requires an HTTPS host allowlist for
+support resources. It does not create safety text.
 
-Read [`../docs/architecture.md`](../docs/architecture.md) and
-[`../docs/conventions.md`](../docs/conventions.md) first.
+## Package boundaries
 
-Configuration comes from the environment — see [`../.env.example`](../.env.example).
+`internal/app` is the composition root. It acquires the database/schema
+single-instance advisory lock, marks pre-existing active sessions interrupted
+and review metadata expired, validates reviewed voice content, creates provider
+adapters, and verifies that all 87 contract operations have exactly one
+handler.
+
+`internal/httpapi` owns contract validation, authentication middleware,
+transactions, idempotency replay, CORS, rate limits, and safe errors. Business
+logic stays in the owning service packages. `internal/store` owns PostgreSQL
+pool settings and embedded migrations. `internal/jobs` owns encrypted export
+objects and bounded cleanup/deletion work.
+
+Voice is disabled unless `VOICE_ENABLED=true`, Deepgram and OpenAI credentials
+exist, and `CONTENT_PACK_PATH` points to an approved, unexpired reviewed pack.
+Push alerts are disabled unless `ALERTS_ENABLED=true` and Google workload
+identity or application credentials are available. Keep these flags false in a
+local setup.
+
+## Checks
+
+```bash
+gofmt -l .
+go vet ./...
+go test -race ./...
+go build ./cmd/api ./cmd/admin ./cmd/migrate
+```
+
+Set `SOBA_TEST_DATABASE_URL` to an isolated PostgreSQL database to run the
+database and integration tests. Never point it at a user-data database.
+
+Read [Backend-Spec](../docs/implementation/Backend-Spec.md), [Voice-Device-Spec](../docs/implementation/Voice-Device-Spec.md),
+and [Runtime-Operations](../docs/implementation/Runtime-Operations.md) before
+changing an API or lifecycle rule.

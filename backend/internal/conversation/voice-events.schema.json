@@ -1,0 +1,689 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:soba:voice:1",
+  "title": "SOBA voice JSON events",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/session.start"
+    },
+    {
+      "$ref": "#/$defs/session.ready"
+    },
+    {
+      "$ref": "#/$defs/input.start"
+    },
+    {
+      "$ref": "#/$defs/input.ready"
+    },
+    {
+      "$ref": "#/$defs/input.end"
+    },
+    {
+      "$ref": "#/$defs/response.cancel"
+    },
+    {
+      "$ref": "#/$defs/response.start"
+    },
+    {
+      "$ref": "#/$defs/response.end"
+    },
+    {
+      "$ref": "#/$defs/mode.changed"
+    },
+    {
+      "$ref": "#/$defs/session.end"
+    },
+    {
+      "$ref": "#/$defs/session.summary_ready"
+    },
+    {
+      "$ref": "#/$defs/error"
+    },
+    {
+      "$ref": "#/$defs/activity.control"
+    },
+    {
+      "$ref": "#/$defs/activity.state"
+    },
+    {
+      "$ref": "#/$defs/safety.offer"
+    },
+    {
+      "$ref": "#/$defs/transcript.partial"
+    },
+    {
+      "$ref": "#/$defs/transcript.final"
+    }
+  ],
+  "$defs": {
+    "session.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "session.start"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "ticket": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 512
+        },
+        "sample_rate": {
+          "const": 16000
+        },
+        "encoding": {
+          "const": "pcm_s16le"
+        },
+        "channels": {
+          "const": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "private",
+            "personal"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "ticket",
+        "sample_rate",
+        "encoding",
+        "channels",
+        "mode"
+      ]
+    },
+    "session.ready": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "session.ready"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "max_turn_seconds": {
+          "const": 120
+        },
+        "max_session_seconds": {
+          "const": 1800
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "max_turn_seconds",
+        "max_session_seconds"
+      ]
+    },
+    "input.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "input.start"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "client_turn_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "client_turn_id"
+      ]
+    },
+    "input.ready": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "input.ready"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "turn_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "response_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "turn_id",
+        "response_id"
+      ]
+    },
+    "input.end": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "input.end"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "turn_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "last_sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "turn_id",
+        "last_sequence"
+      ]
+    },
+    "response.cancel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "response.cancel"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "response_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "response_id"
+      ]
+    },
+    "response.start": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "response.start"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "turn_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "response_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "response_sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "sample_rate": {
+          "const": 24000
+        },
+        "channels": {
+          "const": 1
+        },
+        "encoding": {
+          "const": "pcm_s16le"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "turn_id",
+        "response_id",
+        "response_sequence",
+        "sample_rate",
+        "channels",
+        "encoding"
+      ]
+    },
+    "response.end": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "response.end"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "response_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "cancelled",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "response_id",
+        "status"
+      ]
+    },
+    "mode.changed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "mode.changed"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "support",
+            "safety"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "mode"
+      ]
+    },
+    "session.end": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "session.end"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id"
+      ]
+    },
+    "session.summary_ready": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "session.summary_ready"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "expires_at"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "error"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "unauthenticated",
+            "policy_blocked",
+            "invalid_state",
+            "invalid_audio",
+            "sequence_gap",
+            "buffer_overflow",
+            "dependency_unavailable",
+            "session_expired",
+            "unsupported_language"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "code",
+        "retryable"
+      ]
+    },
+    "activity.control": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "activity.control"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "pause",
+            "resume",
+            "stop"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "action"
+      ]
+    },
+    "activity.state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "activity.state"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "item_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 29
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "playing",
+            "paused",
+            "complete",
+            "stopped"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "item_id",
+        "step",
+        "state"
+      ]
+    },
+    "safety.offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "safety.offer"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "safety_event_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "safety_event_id"
+      ]
+    },
+    "transcript.partial": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "transcript.partial"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "turn_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "turn_id",
+        "text"
+      ]
+    },
+    "transcript.final": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "transcript.final"
+        },
+        "version": {
+          "const": 1
+        },
+        "event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "turn_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        }
+      },
+      "required": [
+        "type",
+        "version",
+        "event_id",
+        "session_id",
+        "turn_id",
+        "text"
+      ]
+    }
+  }
+}
