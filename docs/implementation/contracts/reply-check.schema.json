@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:soba:ai:reply-check:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "allowed": {
+      "type": "boolean"
+    },
+    "reason": {
+      "enum": [
+        "allowed",
+        "medical_advice",
+        "identity_claim",
+        "unsafe_content",
+        "privacy_leak",
+        "invalid_response"
+      ]
+    }
+  },
+  "required": [
+    "allowed",
+    "reason"
+  ]
+}

@@ -1,0 +1,42 @@
+idf_component_register(
+    SRCS
+        "app_main.cpp"
+        "audio_pipeline.cpp"
+        "controls.cpp"
+        "device_runtime.cpp"
+        "ota_manager.cpp"
+        "preferences_store.cpp"
+        "provisioning.cpp"
+        "telemetry.cpp"
+        "transport_client.cpp"
+        "protocol/event_codec.cpp"
+        "protocol/frame_codec.cpp"
+        "protocol/session_machine.cpp"
+        "protocol/state_machine.cpp"
+    INCLUDE_DIRS
+        "."
+        "include"
+        "protocol"
+    REQUIRES
+        app_update
+        bt
+        driver
+        esp_event
+        esp_http_client
+        esp_https_ota
+        esp_netif
+        esp_partition
+        esp-tls
+        esp_websocket_client
+        freertos
+        json
+        lwip
+        nvs_flash
+        protocomm
+        spi_flash
+        wifi_provisioning
+        wpa_supplicant
+)
+
+target_compile_features(${COMPONENT_LIB} PRIVATE cxx_std_17)
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wall -Wextra -Werror=return-type)

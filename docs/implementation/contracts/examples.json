@@ -1,0 +1,248 @@
+[
+  {
+    "name": "profile-update",
+    "schema": "ProfileUpdate",
+    "valid": true,
+    "value": {
+      "display_name": "Sample user",
+      "locale": "id-ID",
+      "timezone": "Asia/Jakarta",
+      "roles": [
+        "user"
+      ],
+      "age_band": "18_plus",
+      "version": 1,
+      "shared_phone": null
+    }
+  },
+  {
+    "name": "save-journal-and-one-memory",
+    "schema": "SaveSelection",
+    "valid": true,
+    "value": {
+      "version": 1,
+      "save_journal": true,
+      "save_mood": false,
+      "mood": "neutral",
+      "memory_candidate_ids": [
+        "10000000-0000-4000-8000-000000000001"
+      ]
+    }
+  },
+  {
+    "name": "discard-all",
+    "schema": "SaveSelection",
+    "valid": true,
+    "value": {
+      "version": 1,
+      "save_journal": false,
+      "save_mood": false,
+      "mood": "unknown",
+      "memory_candidate_ids": []
+    }
+  },
+  {
+    "name": "duplicate-memory-selection",
+    "schema": "SaveSelection",
+    "valid": false,
+    "value": {
+      "version": 1,
+      "save_journal": false,
+      "save_mood": false,
+      "mood": "neutral",
+      "memory_candidate_ids": [
+        "10000000-0000-4000-8000-000000000001",
+        "10000000-0000-4000-8000-000000000001"
+      ]
+    }
+  },
+  {
+    "name": "save-result",
+    "schema": "SaveResult",
+    "valid": true,
+    "value": {
+      "journal_id": "10000000-0000-4000-8000-000000000001",
+      "mood_id": null,
+      "memory_ids": [
+        "10000000-0000-4000-8000-000000000002"
+      ],
+      "session_id": "10000000-0000-4000-8000-000000000001"
+    }
+  },
+  {
+    "name": "confirm-support",
+    "schema": "SupportConfirm",
+    "valid": true,
+    "value": {
+      "confirmed": "yes",
+      "version": 2
+    }
+  },
+  {
+    "name": "missing-confirmation",
+    "schema": "SupportConfirm",
+    "valid": false,
+    "value": {
+      "version": 2
+    }
+  },
+  {
+    "name": "private-field-in-guardian-pulse",
+    "schema": "Pulse",
+    "valid": false,
+    "value": {
+      "period_start": "2026-08-24",
+      "period_end": "2026-09-07",
+      "check_in_count": 3,
+      "trend": "stable",
+      "journal": "private"
+    }
+  },
+  {
+    "name": "suppressed-guardian-week",
+    "schema": "Trends",
+    "valid": true,
+    "value": {
+      "timezone": "Asia/Jakarta",
+      "buckets": [
+        {
+          "start_date": "2026-08-31",
+          "end_date": "2026-09-07",
+          "state": "insufficient_data",
+          "counts": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "unconfirmed-support-request",
+    "schema": "SupportRequest",
+    "valid": true,
+    "value": {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "created_at": "2026-09-07T12:00:00Z",
+      "updated_at": "2026-09-07T12:00:00Z",
+      "version": 1,
+      "contact_id": "10000000-0000-4000-8000-000000000002",
+      "state": "awaiting_permission",
+      "reason": "user_request",
+      "expires_at": "2026-09-07T12:15:00Z",
+      "acknowledged_at": null
+    }
+  },
+  {
+    "name": "error",
+    "schema": "Error",
+    "valid": true,
+    "value": {
+      "code": "version_conflict",
+      "message": "This item changed. Reload it and try again.",
+      "request_id": "10000000-0000-4000-8000-000000000001",
+      "fields": []
+    }
+  },
+  {
+    "name": "invalid-mood",
+    "schema": "MoodCreate",
+    "valid": false,
+    "value": {
+      "label": "depressed",
+      "occurred_at": "2026-09-07T12:00:00Z",
+      "timezone": "Asia/Jakarta"
+    }
+  },
+  {
+    "name": "voice-ready",
+    "schema": "voice-events.schema.json",
+    "valid": true,
+    "value": {
+      "type": "input.ready",
+      "version": 1,
+      "event_id": "10000000-0000-4000-8000-000000000001",
+      "session_id": "10000000-0000-4000-8000-000000000001",
+      "turn_id": "10000000-0000-4000-8000-000000000002",
+      "response_id": "10000000-0000-4000-8000-000000000001"
+    }
+  },
+  {
+    "name": "voice-start-device",
+    "schema": "voice-events.schema.json",
+    "valid": true,
+    "value": {
+      "type": "session.start",
+      "version": 1,
+      "event_id": "10000000-0000-4000-8000-000000000001",
+      "ticket": "",
+      "sample_rate": 16000,
+      "encoding": "pcm_s16le",
+      "channels": 1,
+      "mode": "private"
+    }
+  },
+  {
+    "name": "invalid-voice-rate",
+    "schema": "voice-events.schema.json",
+    "valid": false,
+    "value": {
+      "type": "session.start",
+      "version": 1,
+      "event_id": "10000000-0000-4000-8000-000000000001",
+      "ticket": "",
+      "sample_rate": 48000,
+      "encoding": "pcm_s16le",
+      "channels": 1,
+      "mode": "private"
+    }
+  },
+  {
+    "name": "assessment",
+    "schema": "assessment.schema.json",
+    "valid": true,
+    "value": {
+      "signal": "needs_clarification",
+      "reason_code": "unclear",
+      "style": "calm",
+      "suggest_activity": "none"
+    }
+  },
+  {
+    "name": "reply",
+    "schema": "reply.schema.json",
+    "valid": true,
+    "value": {
+      "text": "I am listening. Would you like to say more?",
+      "activity_id": null
+    }
+  },
+  {
+    "name": "reply-check",
+    "schema": "reply-check.schema.json",
+    "valid": true,
+    "value": {
+      "allowed": true,
+      "reason": "allowed"
+    }
+  },
+  {
+    "name": "draft",
+    "schema": "draft.schema.json",
+    "valid": true,
+    "value": {
+      "mood": "unknown",
+      "topic": "A difficult day",
+      "reflection": "You described a difficult day.",
+      "insights": [],
+      "memory_candidates": []
+    }
+  },
+  {
+    "name": "model-action-injection",
+    "schema": "reply.schema.json",
+    "valid": false,
+    "value": {
+      "text": "Hello",
+      "activity_id": null,
+      "send_to_guardian": true
+    }
+  }
+]

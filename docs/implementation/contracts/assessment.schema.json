@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:soba:ai:assessment:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "signal": {
+      "enum": [
+        "none",
+        "needs_clarification",
+        "serious"
+      ]
+    },
+    "reason_code": {
+      "enum": [
+        "none",
+        "unclear",
+        "help_requested",
+        "serious_signal"
+      ]
+    },
+    "style": {
+      "enum": [
+        "calm",
+        "neutral",
+        "encouraging"
+      ]
+    },
+    "suggest_activity": {
+      "enum": [
+        "none",
+        "grounding",
+        "breathing",
+        "reflection"
+      ]
+    }
+  },
+  "required": [
+    "signal",
+    "reason_code",
+    "style",
+    "suggest_activity"
+  ]
+}

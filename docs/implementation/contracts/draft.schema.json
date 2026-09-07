@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:soba:ai:draft:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mood": {
+      "enum": [
+        "very_low",
+        "low",
+        "neutral",
+        "good",
+        "very_good",
+        "unknown"
+      ]
+    },
+    "topic": {
+      "type": "string",
+      "maxLength": 160
+    },
+    "reflection": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "insights": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 5
+    },
+    "memory_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "category": {
+            "enum": [
+              "preference",
+              "person",
+              "event",
+              "goal"
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "category"
+        ]
+      },
+      "maxItems": 10
+    }
+  },
+  "required": [
+    "mood",
+    "topic",
+    "reflection",
+    "insights",
+    "memory_candidates"
+  ]
+}

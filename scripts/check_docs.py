@@ -17,10 +17,19 @@ ROOT = Path(__file__).resolve().parent.parent
 # Keys that must never carry a value in .env.example. Non-secret defaults
 # (ports, localhost URLs) are fine and deliberately excluded.
 SECRET_KEYS = [
+    "POSTGRES_PASSWORD",
+    "DATA_ENCRYPTION_KEY",
+    "CURSOR_HMAC_KEY",
+    "AUDIT_HMAC_KEY",
+    "DATABASE_URL",
     "ASSEMBLYAI_API_KEY",
     "LLM_API_KEY",
     "TTS_API_KEY",
     "DEVICE_SHARED_SECRET",
+    "OIDC_CLIENT_SECRET",
+    "DEEPGRAM_API_KEY",
+    "OPENAI_API_KEY",
+    "FCM_PROJECT_ID",
 ]
 
 LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
@@ -43,7 +52,7 @@ def anchors_in(path: Path) -> set[str]:
 def check_links() -> list[str]:
     problems, count = [], 0
     for md in sorted(ROOT.rglob("*.md")):
-        if ".git/" in str(md):
+        if any(part in {".git", "work", "build", "managed_components", "node_modules", ".venv"} for part in md.relative_to(ROOT).parts):
             continue
         rel = md.relative_to(ROOT)
         for m in LINK.finditer(md.read_text()):

@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+*.secret
 
 # ---- Node / frontend (React + Vite) ----------------------------------------
 node_modules/
@@ -60,3 +61,11 @@ Thumbs.db
 *.log
 tmp/
 .cache/
+
+# Local firmware toolchain and encrypted runtime storage
+/iot/work/
+/iot/managed_components/
+/iot/sdkconfig
+/iot/sdkconfig.old
+/backend/private-data/
+/private-data/

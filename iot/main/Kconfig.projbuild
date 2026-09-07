@@ -1,0 +1,155 @@
+menu "SOBA reference firmware"
+
+config SOBA_API_URI
+    string "SOBA voice WebSocket URI"
+    default "wss://api.example.invalid/v1/voice"
+    help
+        Use a private WSS endpoint. Replace this value in a release-specific
+        sdkconfig; never put a bearer token in this setting.
+
+config SOBA_API_HEARTBEAT_URI
+    string "SOBA device heartbeat HTTPS URI"
+    default "https://api.example.invalid/v1/device/heartbeat"
+
+config SOBA_CLAIM_URI
+    string "SOBA device claim confirmation URI prefix"
+    default "https://api.example.invalid/v1/device-claims/"
+
+config SOBA_DEVICE_ID
+    string "Factory device UUID"
+    default ""
+    help
+        Set at manufacturing time. An empty value makes the reference build
+        generate and persist a UUID during first boot.
+
+config SOBA_HARDWARE_REVISION
+    string "Hardware revision"
+    default "unassigned"
+
+config SOBA_PROTOCOL_VERSION
+    int "Voice protocol version"
+    range 1 1
+    default 1
+
+config SOBA_MIC_BCLK_GPIO
+    int "I2S microphone BCLK GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_MIC_WS_GPIO
+    int "I2S microphone WS/LRCLK GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_MIC_DATA_GPIO
+    int "I2S microphone data GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_SPK_BCLK_GPIO
+    int "I2S speaker BCLK GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_SPK_WS_GPIO
+    int "I2S speaker WS/LRCLK GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_SPK_DATA_GPIO
+    int "I2S speaker data GPIO (-1 disables audio)"
+    range -1 48
+    default -1
+
+config SOBA_MIC_MUTE_GPIO
+    int "Physical microphone mute GPIO (-1 disables input)"
+    range -1 48
+    default -1
+
+config SOBA_STOP_GPIO
+    int "Physical stop GPIO (-1 disables button)"
+    range -1 48
+    default -1
+
+config SOBA_START_GPIO
+    int "Physical start GPIO (-1 disables button)"
+    range -1 48
+    default -1
+
+config SOBA_END_TURN_GPIO
+    int "Physical end-turn GPIO (-1 uses server endpointing only)"
+    range -1 48
+    default -1
+
+config SOBA_STATUS_LED_GPIO
+    int "Status LED GPIO (-1 disables LED)"
+    range -1 48
+    default -1
+
+config SOBA_PROVISION_BUTTON_GPIO
+    int "Physical provisioning button GPIO (-1 disables button)"
+    range -1 48
+    default -1
+
+config SOBA_MIC_ACTIVE_LEVEL
+    int "Microphone mute active level"
+    range 0 1
+    default 0
+
+config SOBA_STOP_ACTIVE_LEVEL
+    int "Stop button active level"
+    range 0 1
+    default 0
+
+config SOBA_START_ACTIVE_LEVEL
+    int "Start button active level"
+    range 0 1
+    default 0
+
+config SOBA_END_TURN_ACTIVE_LEVEL
+    int "End-turn button active level"
+    range 0 1
+    default 0
+
+config SOBA_PROVISION_ACTIVE_LEVEL
+    int "Provision button active level"
+    range 0 1
+    default 0
+
+config SOBA_MIC_SAMPLE_SHIFT
+    int "Signed microphone sample right shift"
+    range 0 31
+    default 8
+    help
+        Verify this value against the selected MEMS microphone with a known
+        waveform. INMP441 reference boards commonly use 8.
+
+config SOBA_MIC_SAMPLE_BITS
+    int "Microphone sample bits after shift"
+    range 1 31
+    default 24
+
+config SOBA_OTA_ENABLED
+    bool "Enable OTA update task"
+    default n
+
+config SOBA_OTA_MANIFEST_URI
+    string "Private OTA manifest URI"
+    default "https://api.example.invalid/v1/devices/firmware/manifest"
+
+config SOBA_OTA_PUBLIC_KEY_PEM
+    string "OTA manifest signing public key PEM"
+    default ""
+    help
+        Set from a release configuration. Never put a private signing key on
+        the device or in this repository.
+
+config SOBA_REQUIRE_ENCRYPTED_NVS
+    bool "Refuse credentials when encrypted NVS is unavailable"
+    default y
+
+config SOBA_ALLOWED_ORIGIN
+    string "Allowed app Origin (empty accepts device clients only)"
+    default ""
+
+endmenu
