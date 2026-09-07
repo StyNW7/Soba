@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the SOBA PostgreSQL backup each day
+
+[Timer]
+OnCalendar=*-*-* 18:15:00 UTC
+Persistent=true
+RandomizedDelaySec=15m
+Unit=soba-db-backup.service
+
+[Install]
+WantedBy=timers.target

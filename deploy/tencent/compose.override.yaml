@@ -1,0 +1,9 @@
+services:
+  postgres:
+    restart: unless-stopped
+    mem_limit: 768m
+
+  api:
+    restart: unless-stopped
+    mem_limit: 512m
+    stop_grace_period: 20s
