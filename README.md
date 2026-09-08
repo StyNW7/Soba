@@ -17,6 +17,14 @@ The backend uses the Go 1.27.1 toolchain.
   release decision.
 - `docs/` — architecture, provider contracts, operations, and safety rules.
 
+## Implementation specification
+
+The [complete implementation specification](docs/implementation/README.md)
+links the technical design, Notion source evidence, frontend and backend
+behavior, database rules, device protocol, operations, exact contracts, and
+acceptance tests. Use it as the entry point before changing an implementation
+or interface.
+
 ## Local backend
 
 The supported local path uses Docker Compose and PostgreSQL 17.
