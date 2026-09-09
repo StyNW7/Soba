@@ -40,8 +40,10 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 transition-all duration-300',
-        scrolled ? 'bg-background/80 shadow-[0_1px_0_rgba(231,222,210,0.9)] backdrop-blur-xl' : 'bg-transparent',
+        'sticky top-0 z-50 transition-all duration-300 ease-soba',
+        scrolled
+          ? 'border-b border-line/70 bg-background/75 shadow-[0_1px_20px_rgba(82,58,40,0.05)] backdrop-blur-xl backdrop-saturate-150'
+          : 'border-b border-transparent bg-transparent',
       )}
     >
       <nav className="container-soba flex h-[72px] items-center justify-between gap-4" aria-label="Main">
@@ -55,12 +57,25 @@ export function Navbar() {
                 end={link.to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-xl px-3.5 py-2 text-sm font-medium transition-colors',
-                    isActive ? 'text-brown-dark' : 'text-ink-secondary hover:text-brown-dark',
+                    'relative rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-200 ease-soba',
+                    isActive
+                      ? 'text-brown-dark'
+                      : 'text-ink-secondary hover:bg-cream/60 hover:text-brown-dark',
                   )
                 }
               >
-                {link.label}
+                {({ isActive }) => (
+                  <>
+                    {link.label}
+                    <span
+                      className={cn(
+                        'absolute bottom-0.5 left-1/2 h-[3px] -translate-x-1/2 rounded-full bg-gradient-to-r from-apricot to-custard transition-all duration-300 ease-soba',
+                        isActive ? 'w-5 opacity-100' : 'w-0 opacity-0',
+                      )}
+                      aria-hidden="true"
+                    />
+                  </>
+                )}
               </NavLink>
             </li>
           ))}
@@ -176,7 +191,7 @@ export function Footer() {
   ]
 
   return (
-    <footer className="border-t border-line bg-cream/60">
+    <footer className="grain relative border-t border-line bg-gradient-to-b from-cream/70 to-cream/40">
       <div className="container-soba py-14 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-sm">

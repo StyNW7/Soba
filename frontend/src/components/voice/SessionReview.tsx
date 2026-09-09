@@ -206,7 +206,7 @@ export function SessionReview({ open, draft, onClose, onSave, onDiscard }: Sessi
           </div>
         </fieldset>
 
-        <p className="inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-3.5 py-2.5 text-xs leading-relaxed text-[#4A5C40]">
+        <p className="inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-3.5 py-2.5 text-xs leading-relaxed text-sage-deep">
           <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           Raw audio is not stored. Anything you do not select here is discarded and never reaches a
           guardian.

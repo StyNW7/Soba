@@ -63,7 +63,7 @@ export default function HowItWorks() {
                       Step {index + 1}
                     </span>
                   </div>
-                  <h3 className="mt-5 text-lg font-semibold tracking-tight text-brown-dark">{step.title}</h3>
+                  <h3 className="mt-5 text-[17px] font-semibold tracking-headline text-brown-dark">{step.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{step.copy}</p>
                 </Card>
               </Reveal>
@@ -91,7 +91,7 @@ export default function HowItWorks() {
                 </li>
               ))}
             </ul>
-            <p className="mt-8 inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-4 py-3 text-sm leading-relaxed text-[#4A5C40]">
+            <p className="mt-8 inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-4 py-3 text-sm leading-relaxed text-sage-deep">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               Raw audio storage is off by default and stays off unless you deliberately enable it.
             </p>

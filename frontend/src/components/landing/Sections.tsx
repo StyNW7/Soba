@@ -67,12 +67,13 @@ export function ProblemSection() {
             <Reveal key={gap.number} delay={index * 80}>
               <Card
                 interactive
+                sheen
                 padding="lg"
-                className="h-full border-line/80"
+                className="h-full"
                 tone={index % 3 === 0 ? 'cream' : 'surface'}
               >
-                <span className="font-serif text-4xl text-apricot/60">{gap.number}</span>
-                <h3 className="mt-5 text-xl font-semibold tracking-tight text-brown-dark">{gap.title}</h3>
+                <span className="text-gradient-warm font-serif text-5xl leading-none">{gap.number}</span>
+                <h3 className="mt-6 text-xl font-semibold tracking-headline text-brown-dark">{gap.title}</h3>
                 <p className="mt-2.5 text-[15px] leading-relaxed text-ink-secondary">{gap.copy}</p>
               </Card>
             </Reveal>
@@ -157,10 +158,10 @@ export function JourneySection() {
                 >
                   <span
                     className={cn(
-                      'flex h-[76px] w-[76px] items-center justify-center rounded-3xl border transition-all duration-300',
+                      'flex h-[80px] w-[80px] items-center justify-center rounded-3xl border transition-all duration-300 ease-soba',
                       isActive
-                        ? 'border-apricot bg-apricot text-white shadow-[0_12px_30px_rgba(212,149,77,0.3)]'
-                        : 'border-line bg-surface text-brown hover:border-apricot/40',
+                        ? 'scale-105 border-apricot bg-gradient-to-br from-apricot-400 to-apricot text-white shadow-apricot-glow'
+                        : 'border-line bg-surface text-brown shadow-card hover:-translate-y-1 hover:border-apricot-300 hover:shadow-soft',
                     )}
                   >
                     <step.icon className="h-7 w-7" aria-hidden="true" />
@@ -271,7 +272,7 @@ export function EcosystemSection() {
                   <Cpu className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold tracking-tight text-brown-dark">Soba Companion</h3>
+                  <h3 className="text-xl font-semibold tracking-headline text-brown-dark">Soba Companion</h3>
                   <p className="text-sm text-ink-secondary">Physical voice AI companion</p>
                 </div>
               </div>
@@ -283,7 +284,12 @@ export function EcosystemSection() {
               <ul className="mt-auto space-y-2.5">
                 {companionFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm text-brown-dark">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-apricot" aria-hidden="true" />
+                    <span
+                      className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-apricot/15"
+                      aria-hidden="true"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-apricot" />
+                    </span>
                     {feature}
                   </li>
                 ))}
@@ -298,7 +304,7 @@ export function EcosystemSection() {
                   <Smartphone className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <h3 className="text-xl font-semibold tracking-tight text-brown-dark">Soba App</h3>
+                  <h3 className="text-xl font-semibold tracking-headline text-brown-dark">Soba App</h3>
                   <p className="text-sm text-ink-secondary">Digital companion platform</p>
                 </div>
               </div>
@@ -310,7 +316,12 @@ export function EcosystemSection() {
               <ul className="mt-auto grid gap-2.5 sm:grid-cols-2">
                 {appFeatures.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm text-brown-dark">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-apricot" aria-hidden="true" />
+                    <span
+                      className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-apricot/15"
+                      aria-hidden="true"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-apricot" />
+                    </span>
                     {feature}
                   </li>
                 ))}
@@ -396,8 +407,8 @@ export function RoleSection() {
         </div>
 
         <Reveal delay={140}>
-          <div className="mt-8 rounded-3xl border border-apricot/25 bg-apricot-soft/60 px-6 py-10 text-center sm:px-10">
-            <p className="heading-serif text-[26px] leading-snug sm:text-[36px]">
+          <div className="grain relative mt-8 overflow-hidden rounded-[32px] border border-apricot/25 bg-gradient-to-br from-apricot-100 via-apricot-50 to-cream px-6 py-12 text-center sm:px-10">
+            <p className="heading-serif text-[28px] leading-snug sm:text-[38px]">
               Share the risk, not the private story.
             </p>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-secondary">
@@ -430,8 +441,8 @@ const limits = [
 
 export function SafetySection() {
   return (
-    <section className="bg-brown py-20 text-cream lg:py-28">
-      <div className="container-soba">
+    <section className="mesh-deep grain relative overflow-hidden bg-gradient-to-b from-brown-700 to-brown-900 py-20 text-cream lg:py-28">
+      <div className="container-soba relative">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-center">
           <Reveal>
             <SectionHeading
@@ -451,11 +462,11 @@ export function SafetySection() {
           <div className="grid gap-4 sm:grid-cols-2">
             {limits.map((limit, index) => (
               <Reveal key={limit.title} delay={index * 80}>
-                <div className="h-full rounded-3xl border border-cream/15 bg-cream/[0.06] p-6">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cream/12 text-custard">
+                <div className="h-full rounded-3xl border border-cream/15 bg-cream/[0.06] p-6 backdrop-blur-sm transition-all duration-300 ease-soba hover:-translate-y-1 hover:border-custard/30 hover:bg-cream/[0.10]">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream/[0.12] text-custard">
                     <limit.icon className="h-5 w-5" aria-hidden="true" />
                   </span>
-                  <h3 className="mt-4 text-base font-semibold text-cream">{limit.title}</h3>
+                  <h3 className="mt-5 text-base font-semibold text-cream">{limit.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-cream/70">{limit.copy}</p>
                 </div>
               </Reveal>
@@ -464,7 +475,11 @@ export function SafetySection() {
         </div>
 
         <Reveal delay={140}>
-          <p className="mt-14 border-t border-cream/15 pt-8 text-center font-serif text-2xl text-custard sm:text-3xl">
+          <p className="relative mt-16 border-t border-cream/15 pt-10 text-center font-serif text-[26px] leading-snug text-custard sm:text-[34px]">
+            <span
+              className="absolute left-1/2 top-0 h-px w-24 -translate-x-1/2 bg-gradient-to-r from-transparent via-apricot to-transparent"
+              aria-hidden="true"
+            />
             Some conversations should lead to a human.
           </p>
         </Reveal>
@@ -529,11 +544,11 @@ export function FeatureGrid({
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item, index) => (
         <Reveal key={item.title} delay={index * 60}>
-          <Card interactive padding="lg" className="h-full">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream text-brown">
+          <Card interactive sheen padding="lg" className="group h-full">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cream to-cream-deep text-brown shadow-inset transition-all duration-300 ease-soba group-hover:from-apricot-400 group-hover:to-apricot group-hover:text-white group-hover:shadow-apricot-glow">
               <item.icon className="h-5 w-5" aria-hidden="true" />
             </span>
-            <h3 className="mt-5 text-lg font-semibold tracking-tight text-brown-dark">{item.title}</h3>
+            <h3 className="mt-5 text-lg font-semibold tracking-headline text-brown-dark">{item.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{item.copy}</p>
           </Card>
         </Reveal>

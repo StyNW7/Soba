@@ -107,7 +107,7 @@ export default function MoodPatterns() {
         </ChartCard>
 
         <Card padding="lg">
-          <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Reflection insight</h2>
+          <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Reflection insight</h2>
           <p className="mt-1 text-sm text-ink-secondary">
             Observations drawn from your own words. Soba does not interpret these as a condition.
           </p>
@@ -145,7 +145,7 @@ export default function MoodPatterns() {
 
       {/* Accessible table alongside the charts */}
       <Card padding="lg" className="mt-5">
-        <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Weekly data</h2>
+        <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Weekly data</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           The same information as the chart above, in a readable table.
         </p>

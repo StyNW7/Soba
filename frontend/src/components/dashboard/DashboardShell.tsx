@@ -124,25 +124,42 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 aria-label={railMode ? item.label : undefined}
                 className={({ isActive }) =>
                   cn(
-                    'group relative flex items-center rounded-2xl text-sm font-medium transition-all duration-200',
+                    'group relative flex items-center rounded-2xl text-sm font-medium transition-all duration-200 ease-soba',
                     railMode ? 'h-11 w-full justify-center' : 'gap-3 px-3.5 py-2.5',
                     isActive
-                      ? 'bg-apricot-soft text-brown-dark shadow-[inset_0_0_0_1px_rgba(212,149,77,0.25)]'
+                      ? 'bg-gradient-to-r from-apricot-100 to-apricot-50 text-brown-dark shadow-[inset_0_0_0_1px_rgba(212,149,77,0.22)]'
                       : 'text-ink-secondary hover:bg-cream/70 hover:text-brown-dark',
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
+                    {/* Indicator rail: vertical bar when expanded, dot when collapsed */}
+                    <span
+                      className={cn(
+                        'absolute rounded-full bg-gradient-to-b from-apricot-400 to-apricot transition-all duration-300 ease-soba',
+                        railMode
+                          ? 'bottom-1 left-1/2 h-1 -translate-x-1/2'
+                          : 'left-0 top-1/2 w-1 -translate-y-1/2',
+                        isActive
+                          ? railMode
+                            ? 'w-4 opacity-100'
+                            : 'h-5 opacity-100'
+                          : railMode
+                            ? 'w-0 opacity-0'
+                            : 'h-0 opacity-0',
+                      )}
+                      aria-hidden="true"
+                    />
                     <item.icon
                       className={cn(
-                        'h-[18px] w-[18px] shrink-0',
-                        isActive ? 'text-apricot' : 'text-brown-soft',
+                        'h-[18px] w-[18px] shrink-0 transition-colors duration-200',
+                        isActive ? 'text-apricot-700' : 'text-brown-soft group-hover:text-brown',
                       )}
                       aria-hidden="true"
                     />
                     {railMode ? (
-                      <span className="pointer-events-none absolute left-[calc(100%+10px)] z-50 hidden whitespace-nowrap rounded-xl bg-brown-dark px-3 py-2 text-xs font-medium text-cream opacity-0 shadow-soft transition-opacity duration-150 group-hover:block group-hover:opacity-100 group-focus-visible:block group-focus-visible:opacity-100 lg:block">
+                      <span className="pointer-events-none absolute left-[calc(100%+12px)] z-50 hidden -translate-x-1 whitespace-nowrap rounded-xl bg-brown-dark px-3 py-2 text-xs font-medium text-cream opacity-0 shadow-lift transition-all duration-200 ease-soba group-hover:block group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:block group-focus-visible:translate-x-0 group-focus-visible:opacity-100 lg:block">
                         {item.label}
                       </span>
                     ) : (
@@ -185,7 +202,7 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 hidden border-r border-line bg-surface transition-[width] duration-300 ease-[cubic-bezier(.22,1,.36,1)] lg:block',
+          'fixed inset-y-0 left-0 z-40 hidden border-r border-line bg-gradient-to-b from-surface to-cream-tint/40 transition-[width] duration-300 ease-soba lg:block',
           collapsed ? 'w-[76px]' : 'w-[272px]',
         )}
       >
@@ -199,7 +216,7 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
           aria-controls="dashboard-main"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
-          className="absolute -right-3.5 top-[84px] flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-brown-soft shadow-card transition-all duration-200 hover:border-apricot/50 hover:text-apricot hover:shadow-soft"
+          className="absolute -right-3.5 top-[84px] flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-brown-soft shadow-soft transition-all duration-200 ease-soba hover:scale-110 hover:border-apricot-300 hover:text-apricot hover:shadow-lift active:scale-95"
         >
           {collapsed ? (
             <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
@@ -230,7 +247,7 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
         )}
       >
         {/* Header */}
-        <header className="sticky top-0 z-30 border-b border-line bg-background/85 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-line/80 bg-background/75 shadow-[0_1px_16px_rgba(82,58,40,0.04)] backdrop-blur-xl backdrop-saturate-150">
           <div
             className={cn(
               'mx-auto flex h-[72px] w-full items-center justify-between gap-4 px-4 transition-[max-width] duration-300 sm:px-6 lg:px-8',
@@ -334,13 +351,24 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex min-h-[60px] flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-medium transition-colors',
-                    isActive ? 'text-apricot' : 'text-ink-muted',
+                    'relative flex min-h-[60px] flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-medium transition-colors duration-200',
+                    isActive ? 'text-apricot-700' : 'text-ink-muted',
                   )
                 }
               >
-                <item.icon className="h-5 w-5" aria-hidden="true" />
-                <span className="truncate">{item.label}</span>
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={cn(
+                        'absolute inset-x-3 top-0 h-[3px] rounded-b-full bg-gradient-to-r from-apricot to-custard transition-opacity duration-300',
+                        isActive ? 'opacity-100' : 'opacity-0',
+                      )}
+                      aria-hidden="true"
+                    />
+                    <item.icon className="h-5 w-5" aria-hidden="true" />
+                    <span className="truncate">{item.label}</span>
+                  </>
+                )}
               </NavLink>
             </li>
           ))}

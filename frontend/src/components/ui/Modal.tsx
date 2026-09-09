@@ -70,7 +70,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-end justify-center p-0 sm:items-center sm:p-6">
       <div
-        className="absolute inset-0 bg-brown-dark/35 backdrop-blur-[2px] animate-fade-in"
+        className="absolute inset-0 bg-brown-900/40 backdrop-blur-[3px] animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -81,13 +81,18 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         aria-label={title}
         tabIndex={-1}
         className={cn(
-          'relative z-10 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-surface shadow-lift animate-scale-in sm:rounded-3xl',
+          'relative z-10 flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-surface shadow-float animate-slide-up sm:animate-scale-in sm:rounded-3xl',
           sizes[size],
         )}
       >
+        {/* Grab handle for the mobile sheet presentation */}
+        <span
+          className="mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-line-strong sm:hidden"
+          aria-hidden="true"
+        />
         <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold tracking-tight text-brown-dark">{title}</h2>
+            <h2 className="text-lg font-semibold tracking-headline text-brown-dark">{title}</h2>
             {description ? (
               <p className="mt-1 text-sm leading-relaxed text-ink-secondary">{description}</p>
             ) : null}
@@ -95,7 +100,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
           <button
             type="button"
             onClick={onClose}
-            className="-mr-1 shrink-0 rounded-xl p-2 text-ink-muted transition hover:bg-muted hover:text-brown-dark"
+            className="-mr-1 shrink-0 rounded-xl p-2 text-ink-muted transition-all duration-200 hover:rotate-90 hover:bg-muted hover:text-brown-dark"
             aria-label="Close dialog"
           >
             <X className="h-5 w-5" />
@@ -103,7 +108,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
         {footer ? (
-          <div className="flex flex-col-reverse gap-3 border-t border-line bg-muted/50 px-6 py-4 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t border-line bg-gradient-to-b from-muted/40 to-muted/70 px-6 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:pb-4">
             {footer}
           </div>
         ) : null}
@@ -141,19 +146,23 @@ export function Drawer({ open, onClose, title, children, side = 'right', width =
 
   return createPortal(
     <div className="fixed inset-0 z-[95]">
-      <div className="absolute inset-0 bg-brown-dark/35 animate-fade-in" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-brown-900/40 backdrop-blur-[2px] animate-fade-in"
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'absolute inset-y-0 flex w-full flex-col bg-surface shadow-lift animate-slide-in-right',
+          'absolute inset-y-0 flex w-full flex-col bg-surface shadow-float animate-slide-in-right',
           width,
           side === 'right' ? 'right-0' : 'left-0',
         )}
       >
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="text-base font-semibold text-brown-dark">{title}</h2>
+        <div className="flex items-center justify-between border-b border-line bg-gradient-to-b from-cream-tint/60 to-transparent px-5 py-4">
+          <h2 className="text-base font-semibold tracking-headline text-brown-dark">{title}</h2>
           <button
             type="button"
             onClick={onClose}

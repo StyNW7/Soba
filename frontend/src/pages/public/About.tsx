@@ -110,7 +110,7 @@ export default function About() {
             {team.map((member, index) => (
               <Reveal key={member.name} delay={index * 80}>
                 <Card padding="lg" className="h-full">
-                  <h3 className="text-lg font-semibold tracking-tight text-brown-dark">{member.name}</h3>
+                  <h3 className="text-[17px] font-semibold tracking-headline text-brown-dark">{member.name}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-ink-secondary">{member.detail}</p>
                 </Card>
               </Reveal>

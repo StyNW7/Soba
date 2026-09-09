@@ -299,7 +299,7 @@ export function ContactRequestModal({
             })}
           </ol>
 
-          <p className="inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-3.5 py-2.5 text-xs leading-relaxed text-[#4A5C40]">
+          <p className="inline-flex items-start gap-2 rounded-2xl bg-sage-soft px-3.5 py-2.5 text-xs leading-relaxed text-sage-deep">
             <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             Acknowledged means the request was opened. It is not a confirmation that anyone is safe
             or that a conversation happened.

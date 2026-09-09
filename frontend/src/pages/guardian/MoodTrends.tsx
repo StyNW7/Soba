@@ -54,7 +54,7 @@ export default function MoodTrends() {
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card padding="lg">
-          <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Weekly data</h2>
+          <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Weekly data</h2>
           <p className="mt-1 text-sm text-ink-secondary">The same information in a readable table.</p>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[340px] text-sm">
@@ -82,7 +82,7 @@ export default function MoodTrends() {
         </Card>
 
         <Card padding="lg">
-          <h2 className="text-lg font-semibold tracking-tight text-brown-dark">What is not shared</h2>
+          <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">What is not shared</h2>
           <p className="mt-1 text-sm text-ink-secondary">
             These stay with {subject} and are not available on any guardian screen.
           </p>

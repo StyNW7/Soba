@@ -214,11 +214,11 @@ export default function Onboarding() {
             </p>
 
             <div className="mt-6 rounded-3xl border border-sage/30 bg-sage-soft/70 p-5">
-              <p className="flex items-start gap-2.5 text-sm font-semibold text-[#40522F]">
+              <p className="flex items-start gap-2.5 text-sm font-semibold text-sage-deep">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 Soba does not share private conversation transcripts with guardians by default.
               </p>
-              <p className="mt-2 pl-[26px] text-sm leading-relaxed text-[#4A5C40]">
+              <p className="mt-2 pl-[26px] text-sm leading-relaxed text-sage-deep">
                 Guardians see wellbeing patterns and safety signals only. Journals, transcripts, and
                 memories stay with the person they belong to.
               </p>

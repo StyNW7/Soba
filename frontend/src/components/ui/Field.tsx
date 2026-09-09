@@ -3,7 +3,11 @@ import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTML
 import { cn } from '../../lib/cn'
 
 const control =
-  'w-full rounded-2xl border border-line bg-surface px-4 text-sm text-ink placeholder:text-ink-muted transition-colors focus:border-apricot focus:outline-none focus:ring-2 focus:ring-apricot/25 disabled:bg-muted disabled:text-ink-muted'
+  'w-full rounded-2xl border border-line bg-surface px-4 text-sm text-ink placeholder:text-ink-faint ' +
+  'shadow-[inset_0_1px_2px_rgba(82,58,40,0.03)] transition-all duration-200 ease-soba ' +
+  'hover:border-line-strong focus:border-apricot focus:outline-none focus:ring-[3px] focus:ring-apricot/20 ' +
+  'focus:shadow-[inset_0_1px_2px_rgba(82,58,40,0.02),0_2px_10px_rgba(212,149,77,0.08)] ' +
+  'disabled:cursor-not-allowed disabled:bg-muted disabled:text-ink-muted disabled:shadow-none'
 
 interface FieldShellProps {
   label?: string
@@ -25,7 +29,11 @@ export function FieldShell({ label, hint, error, required, children, className }
       {label ? (
         <label htmlFor={id} className="text-sm font-medium text-brown-dark">
           {label}
-          {required ? <span className="ml-1 text-apricot">*</span> : null}
+          {required ? (
+            <span className="ml-1 text-apricot" aria-hidden="true">
+              *
+            </span>
+          ) : null}
         </label>
       ) : null}
       {children(id, describedBy)}
@@ -58,13 +66,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 ) {
   return (
     <FieldShell label={label} hint={hint} error={error} required={required} className={wrapperClassName}>
+      {/* The input renders before the icon so the icon can use peer-focus. */}
       {(id, describedBy) => (
         <div className="relative">
-          {icon ? (
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">
-              {icon}
-            </span>
-          ) : null}
           <input
             ref={ref}
             id={id}
@@ -73,13 +77,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             required={required}
             className={cn(
               control,
-              'h-12',
+              'peer h-12',
               icon && 'pl-11',
               error && 'border-terracotta focus:border-terracotta focus:ring-terracotta/25',
               className,
             )}
             {...props}
           />
+          {icon ? (
+            <span className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-ink-muted transition-colors duration-200 peer-focus:text-apricot">
+              {icon}
+            </span>
+          ) : null}
         </div>
       )}
     </FieldShell>

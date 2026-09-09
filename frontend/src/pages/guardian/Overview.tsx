@@ -3,6 +3,7 @@ import { ArrowRight, BellRing, CalendarCheck, HeartHandshake, ShieldCheck, Trend
 import { PageHeader, PrivacyNote, StatCard } from '../../components/ui/Feedback'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { RadialProgress } from '../../components/ui/Controls'
 import { ButtonLink } from '../../components/ui/Button'
 import { ChartCard } from '../../components/charts/chartTheme'
 import { MoodAreaChart } from '../../components/charts/MoodCharts'
@@ -73,29 +74,17 @@ export default function Overview() {
         </ChartCard>
 
         <Card tone="cream" padding="lg" className="flex flex-col">
-          <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Wellbeing pulse</h2>
+          <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Wellbeing pulse</h2>
           <p className="mt-1 text-sm text-ink-secondary">A support status, not a diagnosis.</p>
 
           <div className="my-7 flex flex-col items-center">
-            <div className="relative flex h-36 w-36 items-center justify-center">
-              <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
-                <circle cx="60" cy="60" r="52" fill="none" stroke="#E7DED2" strokeWidth="10" />
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke="#D4954D"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray={`${0.72 * 2 * Math.PI * 52} ${2 * Math.PI * 52}`}
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="font-serif text-2xl text-brown-dark">Stable</span>
-                <span className="text-xs text-ink-muted">this week</span>
-              </div>
-            </div>
+            <RadialProgress
+              value={72}
+              size={148}
+              stroke={10}
+              label={<span className="font-serif text-2xl text-brown-dark">Stable</span>}
+              sublabel="this week"
+            />
           </div>
 
           <p className="text-sm leading-relaxed text-ink-secondary">
@@ -114,7 +103,7 @@ export default function Overview() {
         <Card padding="lg">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Recent alerts</h2>
+              <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Recent alerts</h2>
               <p className="mt-1 text-sm text-ink-secondary">No conversation content is included.</p>
             </div>
             <Link
@@ -150,7 +139,7 @@ export default function Overview() {
         <Card padding="lg">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Parent Coach</h2>
+              <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Parent Coach</h2>
               <p className="mt-1 text-sm text-ink-secondary">Short guidance, reviewed before publishing.</p>
             </div>
             <Link

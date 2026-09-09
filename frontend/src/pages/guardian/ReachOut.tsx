@@ -71,7 +71,7 @@ export default function ReachOut() {
         </div>
 
         <Card padding="lg">
-          <h2 className="text-lg font-semibold tracking-tight text-brown-dark">
+          <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">
             {channel === 'message' ? 'What you might say' : 'Before you start'}
           </h2>
           <p className="mt-1 text-sm text-ink-secondary">

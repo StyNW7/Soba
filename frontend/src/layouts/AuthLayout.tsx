@@ -17,7 +17,7 @@ export function AuthLayout({
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[1.05fr_1fr]">
       {/* Editorial brand panel */}
-      <aside className="relative hidden overflow-hidden bg-brown px-12 py-14 text-cream lg:flex lg:flex-col lg:justify-between">
+      <aside className="mesh-deep grain relative hidden overflow-hidden bg-gradient-to-br from-brown-600 via-brown-800 to-brown-900 px-12 py-14 text-cream lg:flex lg:flex-col lg:justify-between">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-32 top-10 h-[420px] w-[420px] rounded-full bg-apricot/20 blur-3xl"
@@ -30,11 +30,14 @@ export function AuthLayout({
         <Logo to="/" variant="light" />
 
         <div className="relative max-w-lg">
-          <p className="font-serif text-[44px] leading-[1.15] text-cream">{quote}</p>
-          <p className="mt-6 text-sm uppercase tracking-[0.18em] text-custard">{attribution}</p>
+          <p className="font-serif text-[46px] leading-[1.12] tracking-headline text-cream">{quote}</p>
+          <p className="mt-6 inline-flex items-center gap-2.5 text-sm uppercase tracking-eyebrow text-custard">
+            <span className="h-px w-7 bg-custard/50" aria-hidden="true" />
+            {attribution}
+          </p>
 
-          <div className="mt-12 flex items-center gap-4 rounded-3xl border border-cream/15 bg-cream/[0.06] p-5">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E8B478] to-[#B8763A]">
+          <div className="mt-12 flex items-center gap-4 rounded-3xl border border-cream/15 bg-cream/[0.06] p-5 backdrop-blur-sm">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E8B478] to-[#B8763A] shadow-[0_8px_22px_rgba(184,118,58,0.4)]">
               <span className="h-5 w-9">
                 <Waveform state="speaking" bars={5} />
               </span>

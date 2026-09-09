@@ -18,14 +18,16 @@ interface VoiceOrbProps {
 }
 
 /**
- * Abstract voice presence for Soba. Two soft rings plus a warm core; the rings
- * respond to conversational state rather than to raw audio, keeping motion calm.
+ * Abstract voice presence for Soba. Concentric rings around a warm core; the
+ * rings respond to conversational state rather than to raw audio, which keeps
+ * motion calm and predictable in a mental-health context.
  */
 export function VoiceOrb({ state, safetyMode, size = 260, className }: VoiceOrbProps) {
   const active = state === 'listening' || state === 'speaking'
-  const core = safetyMode ? '#B5654F' : '#D4954D'
-  const halo = safetyMode ? 'rgba(181,101,79,0.20)' : 'rgba(212,149,77,0.22)'
-  const ring = safetyMode ? 'rgba(181,101,79,0.35)' : 'rgba(119,85,51,0.28)'
+
+  const palette = safetyMode
+    ? { core: '#B5654F', deep: '#8E4B39', light: '#E3B5A6', halo: 'rgba(181,101,79,0.20)', ring: 'rgba(181,101,79,0.32)' }
+    : { core: '#D4954D', deep: '#B8763A', light: '#F5E4CB', halo: 'rgba(212,149,77,0.22)', ring: 'rgba(119,85,51,0.24)' }
 
   return (
     <div
@@ -34,36 +36,60 @@ export function VoiceOrb({ state, safetyMode, size = 260, className }: VoiceOrbP
       role="img"
       aria-label={`Soba is ${stateCopy[state].toLowerCase()}`}
     >
+      {/* Ambient halo */}
       <span
         className={cn('absolute rounded-full transition-all duration-1000', active && 'animate-breathe')}
-        style={{ inset: 0, background: `radial-gradient(circle, ${halo} 0%, transparent 68%)` }}
+        style={{ inset: 0, background: `radial-gradient(circle, ${palette.halo} 0%, transparent 68%)` }}
       />
+
+      {/* Emitted ring while listening — reads as attention, not activity */}
+      {state === 'listening' ? (
+        <span
+          className="absolute animate-ring-out rounded-full border"
+          style={{ inset: size * 0.16, borderColor: palette.ring, borderWidth: 1.5 }}
+        />
+      ) : null}
+
       <span
         className={cn(
           'absolute rounded-full border transition-all duration-700',
           state === 'listening' && 'animate-orb-pulse',
         )}
-        style={{ inset: size * 0.11, borderColor: ring, borderWidth: 1.5 }}
+        style={{ inset: size * 0.11, borderColor: palette.ring, borderWidth: 1.5 }}
       />
       <span
         className={cn(
           'absolute rounded-full border transition-all duration-700',
           state === 'thinking' && 'animate-breathe',
         )}
-        style={{ inset: size * 0.2, borderColor: ring, borderWidth: 1 }}
+        style={{ inset: size * 0.2, borderColor: palette.ring, borderWidth: 1 }}
       />
+
+      {/* Core */}
       <span
         className={cn(
-          'relative flex items-center justify-center rounded-full shadow-[0_18px_50px_rgba(82,58,40,0.18)] transition-all duration-700',
+          'relative flex items-center justify-center rounded-full transition-all duration-700',
           active && 'animate-orb-pulse',
         )}
         style={{
           width: size * 0.5,
           height: size * 0.5,
-          background: `radial-gradient(circle at 32% 28%, #F5E4CB 0%, ${core} 58%, ${safetyMode ? '#8E4B39' : '#B8763A'} 100%)`,
+          background: `radial-gradient(circle at 32% 26%, ${palette.light} 0%, ${palette.core} 56%, ${palette.deep} 100%)`,
+          boxShadow: `0 18px 50px ${palette.halo}, inset 0 -6px 18px rgba(82,58,40,0.18), inset 0 4px 12px rgba(255,255,255,0.35)`,
         }}
       >
-        <Waveform state={state} safetyMode={safetyMode} />
+        {/* Specular highlight makes the core read as a sphere, not a flat disc */}
+        <span
+          className="pointer-events-none absolute rounded-full opacity-70"
+          style={{
+            inset: '8% 8% 45% 8%',
+            background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55), transparent 70%)',
+          }}
+          aria-hidden="true"
+        />
+        <span className="relative h-2/5 w-3/5">
+          <Waveform state={state} bars={5} />
+        </span>
       </span>
     </div>
   )
@@ -94,9 +120,10 @@ export function Waveform({ state, bars = 7, className, tone = 'light' }: Wavefor
     const interval = window.setInterval(() => {
       setHeights(
         Array.from({ length: bars }, (_, index) => {
-          const center = 1 - Math.abs(index - (bars - 1) / 2) / bars
+          // Centre bars swing wider, which reads as a voice rather than noise.
+          const centre = 1 - Math.abs(index - (bars - 1) / 2) / bars
           const amplitude = state === 'speaking' ? 62 : 48
-          return 14 + Math.random() * amplitude * (0.55 + center * 0.7)
+          return 14 + Math.random() * amplitude * (0.55 + centre * 0.7)
         }),
       )
     }, 180)
@@ -104,18 +131,15 @@ export function Waveform({ state, bars = 7, className, tone = 'light' }: Wavefor
   }, [state, bars])
 
   return (
-    <span
-      className={cn('flex h-full items-center justify-center gap-[3px]', className)}
-      aria-hidden="true"
-    >
+    <span className={cn('flex h-full items-center justify-center gap-[3px]', className)} aria-hidden="true">
       {heights.map((height, index) => (
         <span
           key={index}
           className={cn(
             'w-[3px] rounded-full transition-all duration-200 ease-out',
-            tone === 'light' ? 'bg-white/85' : 'bg-brown/70',
+            tone === 'light' ? 'bg-white/90' : 'bg-brown/70',
           )}
-          style={{ height: `${Math.min(height, 76)}%` }}
+          style={{ height: `${Math.min(height, 88)}%` }}
         />
       ))}
     </span>

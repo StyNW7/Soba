@@ -68,7 +68,7 @@ export default function ParentCoach() {
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream text-brown">
               <BookOpenText className="h-5 w-5" aria-hidden="true" />
             </span>
-            <h2 className="mt-5 text-lg font-semibold tracking-tight text-brown-dark">{module.title}</h2>
+            <h2 className="mt-5 text-[17px] font-semibold tracking-headline text-brown-dark">{module.title}</h2>
             <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-secondary">{module.summary}</p>
             <div className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
               <span className="inline-flex items-center gap-1.5 text-sm text-ink-muted">

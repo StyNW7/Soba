@@ -79,21 +79,21 @@ export default function SafetyConnection() {
       </div>
 
       <Card padding="lg" className="mt-5">
-        <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Safety plan status</h2>
+        <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Safety plan status</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           A safety plan is written by {subject}, for {subject}. You see whether one exists, not what
           it says.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3 rounded-2xl bg-sage-soft px-5 py-4">
           <CircleCheck className="h-5 w-5 shrink-0 text-sage" aria-hidden="true" />
-          <p className="text-sm font-medium text-[#4A5C40]">
+          <p className="text-sm font-medium text-sage-deep">
             A safety plan exists and sharing with you is enabled for emergencies.
           </p>
         </div>
       </Card>
 
       <Card tone="cream" padding="lg" className="mt-5">
-        <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Emergency support resources</h2>
+        <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Emergency support resources</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           Use these directly. Soba is not an emergency service and does not contact them for you.
         </p>

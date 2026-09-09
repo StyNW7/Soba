@@ -82,7 +82,7 @@ export default function SafetyAlerts() {
       )}
 
       <Card padding="lg">
-        <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Alert history</h2>
+        <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Alert history</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           Past alerts and how they were closed. Confidential conversation is never exposed here.
         </p>

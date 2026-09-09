@@ -82,7 +82,7 @@ export default function Toolkit() {
                 <Badge tone="cream">{activity.category}</Badge>
               </div>
 
-              <h2 className="mt-5 text-lg font-semibold tracking-tight text-brown-dark">
+              <h2 className="mt-5 text-[17px] font-semibold tracking-headline text-brown-dark">
                 {activity.title}
               </h2>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-secondary">

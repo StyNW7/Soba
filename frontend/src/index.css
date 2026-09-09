@@ -16,36 +16,63 @@
   body {
     @apply bg-background text-ink font-sans antialiased;
     overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    /* Inter's contextual alternates plus a single-storey 'a' read warmer at UI sizes. */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
   }
 
   * {
     @apply border-line;
   }
 
+  /* Headings sit slightly tighter than Tailwind's defaults so large type reads
+     as one shape rather than a stack of separate words. */
+  h1,
+  h2,
+  h3 {
+    @apply tracking-headline;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   :focus-visible {
-    @apply outline-none ring-2 ring-apricot ring-offset-2 ring-offset-background rounded-lg;
+    @apply outline-none ring-2 ring-apricot/70 ring-offset-2 ring-offset-background;
+    border-radius: 0.75rem;
   }
 
   ::selection {
-    background: #E3DEA4;
-    color: #3F3026;
+    background: #e3dea4;
+    color: #3f3026;
+  }
+
+  /* Numerals in stats and charts should never shift width while animating. */
+  .tabular,
+  table {
+    font-variant-numeric: tabular-nums;
   }
 
   /* High contrast preference */
   [data-contrast='high'] body {
     @apply text-brown-dark;
   }
-  [data-contrast='high'] {
-    --tw-shadow-color: rgba(82, 58, 40, 0.2);
-  }
   [data-contrast='high'] .text-ink-muted {
-    color: #6B5B4F;
+    color: #6b5b4f;
   }
   [data-contrast='high'] .text-ink-secondary {
-    color: #4A3A2E;
+    color: #4a3a2e;
+  }
+  [data-contrast='high'] .text-ink-faint {
+    color: #78685c;
   }
   [data-contrast='high'] .border-line {
-    border-color: #C9B9A6;
+    border-color: #c9b9a6;
+  }
+  [data-contrast='high'] .border-line\/70,
+  [data-contrast='high'] .border-line\/80 {
+    border-color: #c9b9a6;
   }
 }
 
@@ -53,18 +80,26 @@
   .container-soba {
     @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-10;
   }
+
   .container-dash {
     @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8;
   }
+
   .heading-serif {
-    @apply font-serif font-normal tracking-[-0.01em] text-brown-dark;
+    @apply font-serif font-normal tracking-headline text-brown-dark;
   }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Eyebrow label above section headings. */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-eyebrow text-apricot-700;
   }
 
   /* Warm ambient wash used behind hero and CTA sections. */
@@ -74,6 +109,14 @@
       radial-gradient(at 88% 12%, rgba(227, 222, 164, 0.55) 0px, transparent 50%),
       radial-gradient(at 72% 88%, rgba(212, 149, 77, 0.16) 0px, transparent 52%),
       radial-gradient(at 8% 92%, rgba(233, 220, 198, 0.6) 0px, transparent 48%);
+  }
+
+  /* Darker counterpart for the olive safety sections. */
+  .mesh-deep {
+    background-image:
+      radial-gradient(at 8% 12%, rgba(212, 149, 77, 0.22) 0px, transparent 48%),
+      radial-gradient(at 92% 20%, rgba(227, 222, 164, 0.13) 0px, transparent 45%),
+      radial-gradient(at 60% 100%, rgba(212, 149, 77, 0.14) 0px, transparent 50%);
   }
 
   /* Very fine paper grain, keeps large flat areas from looking plasticky. */
@@ -87,6 +130,12 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
   }
 
+  /* Faint dotted field for empty states and quiet panels. */
+  .dot-grid {
+    background-image: radial-gradient(rgba(169, 137, 112, 0.22) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
   /* Thin apricot rule used to open dashboard sections. */
   .rule-accent::before {
     content: '';
@@ -94,8 +143,48 @@
     width: 34px;
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #D4954D, #E3DEA4);
+    background: linear-gradient(90deg, #d4954d, #e3dea4);
     margin-bottom: 14px;
+  }
+
+  /* Hairline that fades out at both ends, softer than a full-width border. */
+  .divider-fade {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(90deg, transparent, #e7ded2 18%, #e7ded2 82%, transparent);
+  }
+
+  /* Light sweep across a raised card on hover. */
+  .sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+  }
+  .sheen:hover::before {
+    opacity: 1;
+  }
+
+  /* Warm gradient fill for display numerals and accent words. */
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #d4954d 0%, #b8763a 55%, #775533 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Loading placeholder that matches the warm palette. */
+  .skeleton {
+    background: linear-gradient(90deg, #f0e9df 25%, #f7f2ec 50%, #f0e9df 75%);
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded-xl;
   }
 }
 
@@ -108,13 +197,13 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E0D5C6;
+  background: #e0d5c6;
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9B9A6;
+  background: #c9b9a6;
   background-clip: content-box;
 }
 

@@ -78,7 +78,7 @@ export default function Overview() {
       <Card padding="lg" tone="cream" className="mesh-warm relative mb-5 overflow-hidden">
         <div className="relative flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Quick check-in</h2>
+            <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Quick check-in</h2>
             <p className="mt-1 text-sm text-ink-secondary">
               {checkedIn
                 ? `Recorded as "${todayEntry?.label}" today. Choose again to change it.`
@@ -176,7 +176,7 @@ export default function Overview() {
 
         <Card padding="lg" className="flex flex-col">
           <div className="flex items-start justify-between gap-3">
-            <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Recent reflection</h2>
+            <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Recent reflection</h2>
             {latestReflection ? (
               <Badge tone="cream" icon={<MoodIcon mood={latestReflection.mood} />}>
                 {latestReflection.mood}
@@ -222,7 +222,7 @@ export default function Overview() {
       <section aria-labelledby="quick-support" className="mb-5">
         <h2
           id="quick-support"
-          className="rule-accent mb-4 text-lg font-semibold tracking-tight text-brown-dark"
+          className="rule-accent mb-4 text-[17px] font-semibold tracking-headline text-brown-dark"
         >
           Quick support
         </h2>

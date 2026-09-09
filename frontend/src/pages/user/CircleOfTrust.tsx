@@ -421,7 +421,7 @@ export default function CircleOfTrust() {
             </div>
             {editing.status === 'invited' ? (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-amber-soft/60 px-4 py-3">
-                <p className="text-xs leading-relaxed text-[#7E6220]">
+                <p className="text-xs leading-relaxed text-amber-deep">
                   Invitation is still pending acceptance.
                 </p>
                 <Button

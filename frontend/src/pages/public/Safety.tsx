@@ -79,7 +79,7 @@ export default function Safety() {
                   <li key={rule.label} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
                     <span
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                        rule.shared ? 'bg-sage-soft text-[#4F6244]' : 'bg-muted text-ink-muted'
+                        rule.shared ? 'bg-sage-soft text-sage-deep' : 'bg-muted text-ink-muted'
                       }`}
                     >
                       {rule.shared ? (

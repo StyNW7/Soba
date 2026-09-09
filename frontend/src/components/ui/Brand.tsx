@@ -15,20 +15,22 @@ interface LogoProps {
 
 export function Logo({ to = '/', className, variant = 'dark', showWordmark = true }: LogoProps) {
   const content = (
-    <span className={cn('inline-flex items-center gap-2.5', className)}>
+    <span className={cn('group/logo inline-flex items-center gap-2.5', className)}>
       <span
         className={cn(
-          'relative flex h-9 w-9 items-center justify-center rounded-[13px] shadow-sm',
-          variant === 'dark' ? 'bg-brown' : 'bg-cream',
+          'relative flex h-9 w-9 items-center justify-center rounded-[13px] shadow-inset transition-transform duration-300 ease-soba group-hover/logo:scale-105',
+          variant === 'dark'
+            ? 'bg-gradient-to-br from-brown-500 to-brown-800'
+            : 'bg-gradient-to-br from-cream to-cream-deep',
         )}
       >
         <span
           className={cn(
             'absolute h-[18px] w-[18px] rounded-full border-2',
-            variant === 'dark' ? 'border-custard' : 'border-brown',
+            variant === 'dark' ? 'border-custard/80' : 'border-brown/70',
           )}
         />
-        <span className="relative h-[7px] w-[7px] rounded-full bg-apricot" />
+        <span className="relative h-[7px] w-[7px] rounded-full bg-apricot shadow-[0_0_8px_rgba(212,149,77,0.6)]" />
       </span>
       {showWordmark ? (
         <span
@@ -147,16 +149,24 @@ export function SectionHeading({
       {eyebrow ? (
         <p
           className={cn(
-            'mb-3 text-xs font-semibold uppercase tracking-[0.18em]',
-            tone === 'dark' ? 'text-apricot' : 'text-custard',
+            'mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-eyebrow',
+            tone === 'dark' ? 'text-apricot-700' : 'text-custard',
+            align === 'center' && 'justify-center',
           )}
         >
+          <span
+            className={cn(
+              'h-px w-6',
+              tone === 'dark' ? 'bg-apricot-300' : 'bg-custard/50',
+            )}
+            aria-hidden="true"
+          />
           {eyebrow}
         </p>
       ) : null}
       <h2
         className={cn(
-          'heading-serif text-[32px] leading-[1.15] sm:text-[42px] lg:text-[46px]',
+          'heading-serif text-[34px] leading-[1.12] sm:text-[44px] lg:text-[48px]',
           tone === 'light' && 'text-cream',
         )}
       >
@@ -165,7 +175,7 @@ export function SectionHeading({
       {description ? (
         <p
           className={cn(
-            'mt-4 text-base leading-relaxed sm:text-lg',
+            'mt-5 text-base leading-relaxed sm:text-[17px]',
             tone === 'dark' ? 'text-ink-secondary' : 'text-cream/75',
           )}
         >

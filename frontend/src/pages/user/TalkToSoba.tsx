@@ -290,7 +290,7 @@ export default function TalkToSoba() {
                   ? item === 'safety'
                     ? 'bg-terracotta-soft text-terracotta-dark'
                     : item === 'support'
-                      ? 'bg-amber-soft text-[#7E6220]'
+                      ? 'bg-amber-soft text-amber-deep'
                       : 'bg-cream text-brown-dark'
                   : 'text-ink-muted',
               )}
@@ -337,10 +337,10 @@ export default function TalkToSoba() {
         <div className="mb-6 rounded-3xl border border-amber/30 bg-amber-soft/70 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
-              <Wind className="mt-0.5 h-5 w-5 shrink-0 text-[#7E6220]" aria-hidden="true" />
+              <Wind className="mt-0.5 h-5 w-5 shrink-0 text-amber-deep" aria-hidden="true" />
               <div>
-                <h2 className="text-base font-semibold text-[#7E6220]">Would slowing down help?</h2>
-                <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-[#7E6220]/85">
+                <h2 className="text-base font-semibold text-amber-deep">Would slowing down help?</h2>
+                <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-amber-deep/85">
                   Soba can guide two minutes of slow breathing. The conversation stays exactly where
                   you left it.
                 </p>
@@ -501,7 +501,7 @@ export default function TalkToSoba() {
                 <button
                   type="button"
                   onClick={() => send(supportTriggerPhrase)}
-                  className="rounded-full border border-amber/40 bg-amber-soft px-3 py-1.5 text-xs font-medium text-[#7E6220] transition hover:bg-amber-soft/80"
+                  className="rounded-full border border-amber/40 bg-amber-soft px-3 py-1.5 text-xs font-medium text-amber-deep transition hover:bg-amber-soft/80"
                   title="Demonstrates Support Mode"
                 >
                   Demo: support mode
@@ -550,7 +550,7 @@ export default function TalkToSoba() {
 
       {/* Past sessions */}
       <Card padding="lg" className="mt-5">
-        <h2 className="text-lg font-semibold tracking-tight text-brown-dark">Recent sessions</h2>
+        <h2 className="text-[17px] font-semibold tracking-headline text-brown-dark">Recent sessions</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           Only sessions you chose to keep appear in your journal.
         </p>

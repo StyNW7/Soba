@@ -238,7 +238,7 @@ export function PairDeviceModal({ open, onClose, onPaired }: PairDeviceModalProp
           <div className="space-y-4">
             <div className="flex items-center gap-3 rounded-2xl bg-sage-soft px-4 py-3">
               <Check className="h-4 w-4 shrink-0 text-sage" aria-hidden="true" />
-              <p className="text-sm text-[#4A5C40]">Connected to the companion.</p>
+              <p className="text-sm text-sage-deep">Connected to the companion.</p>
             </div>
             <Input
               label="Wi-Fi network"
@@ -271,8 +271,8 @@ export function PairDeviceModal({ open, onClose, onPaired }: PairDeviceModalProp
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sage text-white">
                 <Check className="h-7 w-7" aria-hidden="true" />
               </span>
-              <p className="mt-4 text-base font-semibold text-[#40522F]">Your companion is paired</p>
-              <p className="mt-1 text-sm text-[#4A5C40]">
+              <p className="mt-4 text-base font-semibold text-sage-deep">Your companion is paired</p>
+              <p className="mt-1 text-sm text-sage-deep">
                 Give it a name so you can tell devices apart later.
               </p>
             </div>

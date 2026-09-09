@@ -67,7 +67,7 @@ export default function Support() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream text-brown">
                     <pathway.icon className="h-5 w-5" aria-hidden="true" />
                   </span>
-                  <h3 className="mt-5 text-lg font-semibold tracking-tight text-brown-dark">
+                  <h3 className="mt-5 text-[17px] font-semibold tracking-headline text-brown-dark">
                     {pathway.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{pathway.copy}</p>
