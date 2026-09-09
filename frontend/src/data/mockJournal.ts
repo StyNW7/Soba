@@ -1,0 +1,70 @@
+import type { JournalEntry } from '../types'
+
+export const journalEntries: JournalEntry[] = [
+  {
+    id: 'j1',
+    date: '8 Sep 2026',
+    isoDate: '2026-09-08',
+    title: 'Feeling overwhelmed before presentation',
+    summary:
+      'You talked about feeling nervous about the presentation, and also recognized that preparation helped you feel more in control.',
+    body: 'You described a tight feeling whenever you thought about standing in front of the class. When you walked through what you had already prepared, the pressure eased a little. You noticed the worry was less about the material and more about being watched.',
+    mood: 'Stressed',
+    source: 'voice',
+    insights: [
+      'Preparation reduces the pressure',
+      'Being observed feels harder than the content itself',
+    ],
+    private: true,
+  },
+  {
+    id: 'j2',
+    date: '6 Sep 2026',
+    isoDate: '2026-09-06',
+    title: 'A quieter evening after a long week',
+    summary:
+      'You noticed the week felt long, and that a slow evening without plans helped more than you expected.',
+    body: 'You mentioned turning your phone face down for an hour and how unfamiliar that felt at first. By the end of the evening the restlessness had softened.',
+    mood: 'Tired',
+    source: 'voice',
+    insights: ['Unstructured evenings help you reset'],
+    private: true,
+  },
+  {
+    id: 'j3',
+    date: '3 Sep 2026',
+    isoDate: '2026-09-03',
+    title: 'Talked with Maria about the weekend',
+    summary: 'A short conversation with someone in your Circle of Trust left you feeling lighter.',
+    body: 'You wrote that you had not planned to bring it up, but it came out anyway, and the response was gentler than you expected.',
+    mood: 'Calm',
+    source: 'written',
+    insights: ['Reaching out felt easier than anticipated'],
+    private: true,
+  },
+  {
+    id: 'j4',
+    date: '1 Sep 2026',
+    isoDate: '2026-09-01',
+    title: 'Starting the month with mixed feelings',
+    summary:
+      'You reflected on wanting a fresh start while also feeling behind before the month began.',
+    body: 'You described the gap between the month you had imagined and the one that actually started. Naming that gap made it feel less like failure.',
+    mood: 'Okay',
+    source: 'written',
+    insights: ['Expectations set the tone before the week does'],
+    private: true,
+  },
+  {
+    id: 'j5',
+    date: '28 Aug 2026',
+    isoDate: '2026-08-28',
+    title: 'Trouble winding down at night',
+    summary: 'You talked about lying awake replaying conversations from the day.',
+    body: 'You noticed the replay usually starts after midnight and rarely resolves anything. A short breathing exercise helped once you tried it.',
+    mood: 'Overwhelmed',
+    source: 'voice',
+    insights: ['Late-night replaying rarely resolves anything', 'Breathing helped shorten the loop'],
+    private: true,
+  },
+]

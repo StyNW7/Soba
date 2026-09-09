@@ -1,0 +1,58 @@
+import type { AppNotification } from '../types'
+
+export const notifications: AppNotification[] = [
+  {
+    id: 'n1',
+    title: 'Time for your evening check-in',
+    body: 'A short check-in takes about a minute. You can skip it if tonight is not the night.',
+    time: '2h ago',
+    read: false,
+    audience: 'user',
+    kind: 'reminder',
+  },
+  {
+    id: 'n2',
+    title: 'Your reflection from yesterday is ready',
+    body: 'Soba prepared a summary from your conversation. Nothing is saved until you choose to keep it.',
+    time: 'Yesterday',
+    read: false,
+    audience: 'user',
+    kind: 'update',
+  },
+  {
+    id: 'n3',
+    title: 'Maria accepted your Circle of Trust invitation',
+    body: 'Maria can now be reached through Soba when you choose to reach out.',
+    time: '2 days ago',
+    read: true,
+    audience: 'user',
+    kind: 'connection',
+  },
+  {
+    id: 'n4',
+    title: 'Nara completed today’s check-in',
+    body: 'The wellbeing pulse has been updated. No conversation content is shared.',
+    time: '3h ago',
+    read: false,
+    audience: 'guardian',
+    kind: 'update',
+  },
+  {
+    id: 'n5',
+    title: 'New Parent Coach recommendation available',
+    body: 'Listening Without Fixing has been added to your coach library.',
+    time: 'Yesterday',
+    read: false,
+    audience: 'guardian',
+    kind: 'update',
+  },
+  {
+    id: 'n6',
+    title: 'Urgent wellbeing check-in recommended',
+    body: 'Soba detected a serious wellbeing signal and recommends contacting Nara.',
+    time: 'Just now',
+    read: false,
+    audience: 'guardian',
+    kind: 'safety',
+  },
+]

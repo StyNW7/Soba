@@ -61,6 +61,7 @@ Thumbs.db
 *.log
 tmp/
 .cache/
+prompts/
 
 # Local firmware toolchain and encrypted runtime storage
 /iot/work/

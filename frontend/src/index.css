@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --soba-text-scale: 1;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: calc(16px * var(--soba-text-scale));
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-ink font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-apricot ring-offset-2 ring-offset-background rounded-lg;
+  }
+
+  ::selection {
+    background: #E3DEA4;
+    color: #3F3026;
+  }
+
+  /* High contrast preference */
+  [data-contrast='high'] body {
+    @apply text-brown-dark;
+  }
+  [data-contrast='high'] {
+    --tw-shadow-color: rgba(82, 58, 40, 0.2);
+  }
+  [data-contrast='high'] .text-ink-muted {
+    color: #6B5B4F;
+  }
+  [data-contrast='high'] .text-ink-secondary {
+    color: #4A3A2E;
+  }
+  [data-contrast='high'] .border-line {
+    border-color: #C9B9A6;
+  }
+}
+
+@layer components {
+  .container-soba {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-10;
+  }
+  .container-dash {
+    @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8;
+  }
+  .heading-serif {
+    @apply font-serif font-normal tracking-[-0.01em] text-brown-dark;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E0D5C6;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9B9A6;
+  background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
