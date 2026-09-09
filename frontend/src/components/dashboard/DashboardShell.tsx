@@ -1,7 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { ChevronRight, LogOut, Menu, MoreHorizontal, Settings, ShieldCheck, X } from 'lucide-react'
+import {
+  ChevronRight,
+  LogOut,
+  Menu,
+  MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  ShieldCheck,
+  X,
+} from 'lucide-react'
 import { cn } from '../../lib/cn'
+import { readStorage, writeStorage } from '../../lib/storage'
 import { Logo } from '../ui/Brand'
 import { Avatar } from '../ui/Badge'
 import { Dropdown, DropdownItem } from '../ui/Controls'
@@ -9,6 +20,8 @@ import { useAuth } from '../../context/AuthContext'
 import { NotificationBell, NotificationCenter } from './NotificationCenter'
 import type { NavItem } from './navConfig'
 import type { Role } from '../../types'
+
+const COLLAPSE_KEY = 'soba.sidebar.collapsed'
 
 interface DashboardShellProps {
   nav: NavItem[]
@@ -23,8 +36,32 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+
+  useEffect(() => {
+    setCollapsed(readStorage<boolean>(COLLAPSE_KEY, false))
+  }, [])
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((current) => {
+      writeStorage(COLLAPSE_KEY, !current)
+      return !current
+    })
+  }, [])
+
+  // Keyboard shortcut, matching the convention most dashboards use.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'b') {
+        event.preventDefault()
+        toggleCollapsed()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [toggleCollapsed])
 
   useEffect(() => {
     setSidebarOpen(false)
@@ -41,36 +78,54 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
     navigate('/login', { replace: true })
   }
 
-  const sidebar = (
+  /** `railMode` renders the icon-only sidebar; the drawer always shows labels. */
+  const sidebarContent = (railMode: boolean, onDismiss?: () => void) => (
     <div className="flex h-full flex-col">
-      <div className="flex h-[72px] shrink-0 items-center justify-between px-5">
-        <Logo />
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(false)}
-          className="rounded-xl p-2 text-ink-muted transition hover:bg-muted lg:hidden"
-          aria-label="Close navigation"
-        >
-          <X className="h-5 w-5" />
-        </button>
+      <div
+        className={cn(
+          'flex h-[72px] shrink-0 items-center',
+          railMode ? 'justify-center px-2' : 'justify-between px-5',
+        )}
+      >
+        <Logo showWordmark={!railMode} />
+        {onDismiss ? (
+          <button
+            type="button"
+            onClick={onDismiss}
+            className="rounded-xl p-2 text-ink-muted transition hover:bg-muted lg:hidden"
+            aria-label="Close navigation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        ) : null}
       </div>
 
-      <div className="px-5 pb-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          {roleLabel}
-        </p>
-      </div>
+      {!railMode ? (
+        <div className="px-5 pb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+            {roleLabel}
+          </p>
+        </div>
+      ) : (
+        <div className="mx-auto mb-3 h-px w-8 bg-line" aria-hidden="true" />
+      )}
 
-      <nav aria-label="Dashboard" className="flex-1 overflow-y-auto px-3 pb-4">
+      <nav
+        aria-label="Dashboard"
+        className={cn('flex-1 overflow-y-auto overflow-x-hidden pb-4', railMode ? 'px-2' : 'px-3')}
+      >
         <ul className="space-y-1">
           {nav.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
                 end={item.end}
+                title={railMode ? item.label : undefined}
+                aria-label={railMode ? item.label : undefined}
                 className={({ isActive }) =>
                   cn(
-                    'group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200',
+                    'group relative flex items-center rounded-2xl text-sm font-medium transition-all duration-200',
+                    railMode ? 'h-11 w-full justify-center' : 'gap-3 px-3.5 py-2.5',
                     isActive
                       ? 'bg-apricot-soft text-brown-dark shadow-[inset_0_0_0_1px_rgba(212,149,77,0.25)]'
                       : 'text-ink-secondary hover:bg-cream/70 hover:text-brown-dark',
@@ -80,10 +135,19 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 {({ isActive }) => (
                   <>
                     <item.icon
-                      className={cn('h-[18px] w-[18px] shrink-0', isActive ? 'text-apricot' : 'text-brown-soft')}
+                      className={cn(
+                        'h-[18px] w-[18px] shrink-0',
+                        isActive ? 'text-apricot' : 'text-brown-soft',
+                      )}
                       aria-hidden="true"
                     />
-                    <span className="truncate">{item.label}</span>
+                    {railMode ? (
+                      <span className="pointer-events-none absolute left-[calc(100%+10px)] z-50 hidden whitespace-nowrap rounded-xl bg-brown-dark px-3 py-2 text-xs font-medium text-cream opacity-0 shadow-soft transition-opacity duration-150 group-hover:block group-hover:opacity-100 group-focus-visible:block group-focus-visible:opacity-100 lg:block">
+                        {item.label}
+                      </span>
+                    ) : (
+                      <span className="truncate">{item.label}</span>
+                    )}
                   </>
                 )}
               </NavLink>
@@ -92,13 +156,19 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
         </ul>
       </nav>
 
-      <div className="shrink-0 border-t border-line p-4">
-        <div className="rounded-2xl bg-cream/70 p-4">
-          <p className="flex items-start gap-2 text-xs leading-relaxed text-brown">
-            <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-sage" aria-hidden="true" />
-            {footerNote}
-          </p>
-        </div>
+      <div className={cn('shrink-0 border-t border-line', railMode ? 'p-2' : 'p-4')}>
+        {railMode ? (
+          <div className="flex justify-center py-2" title={footerNote}>
+            <ShieldCheck className="h-4 w-4 text-sage" aria-label={footerNote} />
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-cream/70 p-4">
+            <p className="flex items-start gap-2 text-xs leading-relaxed text-brown">
+              <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-sage" aria-hidden="true" />
+              {footerNote}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -113,8 +183,30 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
       </a>
 
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] border-r border-line bg-surface lg:block">
-        {sidebar}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-40 hidden border-r border-line bg-surface transition-[width] duration-300 ease-[cubic-bezier(.22,1,.36,1)] lg:block',
+          collapsed ? 'w-[76px]' : 'w-[272px]',
+        )}
+      >
+        {sidebarContent(collapsed)}
+
+        {/* Collapse handle sits on the sidebar edge */}
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-controls="dashboard-main"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
+          className="absolute -right-3.5 top-[84px] flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-brown-soft shadow-card transition-all duration-200 hover:border-apricot/50 hover:text-apricot hover:shadow-soft"
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
+          ) : (
+            <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
+          )}
+        </button>
       </aside>
 
       {/* Mobile / tablet drawer */}
@@ -126,15 +218,25 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
             aria-hidden="true"
           />
           <aside className="absolute inset-y-0 left-0 w-[280px] bg-surface shadow-lift animate-slide-in-right">
-            {sidebar}
+            {sidebarContent(false, () => setSidebarOpen(false))}
           </aside>
         </div>
       ) : null}
 
-      <div className="lg:pl-[272px]">
+      <div
+        className={cn(
+          'transition-[padding] duration-300 ease-[cubic-bezier(.22,1,.36,1)]',
+          collapsed ? 'lg:pl-[76px]' : 'lg:pl-[272px]',
+        )}
+      >
         {/* Header */}
         <header className="sticky top-0 z-30 border-b border-line bg-background/85 backdrop-blur-xl">
-          <div className="container-dash flex h-[72px] items-center justify-between gap-4">
+          <div
+            className={cn(
+              'mx-auto flex h-[72px] w-full items-center justify-between gap-4 px-4 transition-[max-width] duration-300 sm:px-6 lg:px-8',
+              collapsed ? 'max-w-[1560px]' : 'max-w-[1400px]',
+            )}
+          >
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
@@ -144,6 +246,22 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
               >
                 <Menu className="h-[18px] w-[18px]" />
               </button>
+
+              {/* Desktop toggle, mirrored in the header for discoverability */}
+              <button
+                type="button"
+                onClick={toggleCollapsed}
+                aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (Ctrl+B)`}
+                className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-brown transition hover:bg-cream lg:flex"
+              >
+                {collapsed ? (
+                  <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden="true" />
+                ) : (
+                  <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />
+                )}
+              </button>
+
               <div className="min-w-0">
                 <p className="hidden text-xs text-ink-muted sm:flex sm:items-center sm:gap-1">
                   Soba
@@ -175,7 +293,9 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 </div>
                 <div className="pt-1.5">
                   <DropdownItem
-                    onClick={() => navigate(role === 'guardian' ? '/app/guardian/settings' : '/app/user/settings')}
+                    onClick={() =>
+                      navigate(role === 'guardian' ? '/app/guardian/settings' : '/app/user/settings')
+                    }
                   >
                     <Settings className="h-4 w-4" aria-hidden="true" />
                     Settings
@@ -190,7 +310,13 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
           </div>
         </header>
 
-        <main id="dashboard-main" className="container-dash pb-28 pt-7 lg:pb-14">
+        <main
+          id="dashboard-main"
+          className={cn(
+            'mx-auto w-full px-4 pb-28 pt-7 transition-[max-width] duration-300 ease-[cubic-bezier(.22,1,.36,1)] sm:px-6 lg:px-8 lg:pb-14',
+            collapsed ? 'max-w-[1560px]' : 'max-w-[1400px]',
+          )}
+        >
           <Outlet />
         </main>
       </div>

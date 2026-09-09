@@ -6,8 +6,11 @@ import type {
   MemoryItem,
   MoodEntry,
   MoodLabel,
+  Personalization,
+  Referral,
   SafetyAlert,
   SobaDevice,
+  SupportRequest,
   TrustedContact,
 } from '../types'
 import { journalEntries as seedJournal } from '../data/mockJournal'
@@ -48,10 +51,21 @@ interface AppDataContextValue {
   addMemory: (text: string, category: MemoryItem['category']) => void
   updateMemory: (id: string, text: string) => void
   removeMemory: (id: string) => void
-  device: SobaDevice
+  device: SobaDevice | null
   updateDevice: (patch: Partial<SobaDevice>) => void
+  pairDevice: (name: string) => void
+  unpairDevice: () => void
+  personalization: Personalization
+  updatePersonalization: (patch: Partial<Personalization>) => void
   privacy: PrivacySettings
   updatePrivacy: (patch: Partial<PrivacySettings>) => void
+  supportRequests: SupportRequest[]
+  createSupportRequest: (request: Omit<SupportRequest, 'id' | 'createdAt' | 'expiresAt' | 'status'>) => string
+  advanceSupportRequest: (id: string, status: SupportRequest['status']) => void
+  referrals: Referral[]
+  createReferral: (referral: Omit<Referral, 'id' | 'createdAt' | 'status'>) => void
+  updateReferral: (id: string, status: Referral['status']) => void
+  removeReferral: (id: string) => void
   safetyModeActive: boolean
   triggerSafetyEscalation: () => void
   clearSafetyEscalation: () => void
@@ -67,7 +81,15 @@ const defaultPrivacy: PrivacySettings = {
   shareSafetyAlerts: true,
 }
 
-const STORAGE_KEY = 'soba.appdata.v1'
+const defaultPersonalization: Personalization = {
+  personality: 'calm',
+  voiceId: 'marin',
+  listenFirst: true,
+  useMemory: true,
+  adaptiveTone: true,
+}
+
+const STORAGE_KEY = 'soba.appdata.v2'
 
 const AppDataContext = createContext<AppDataContextValue | undefined>(undefined)
 
@@ -86,8 +108,11 @@ interface PersistShape {
   notifications: AppNotification[]
   alerts: SafetyAlert[]
   memory: MemoryItem[]
-  device: SobaDevice
+  device: SobaDevice | null
+  personalization: Personalization
   privacy: PrivacySettings
+  supportRequests: SupportRequest[]
+  referrals: Referral[]
 }
 
 const seed: PersistShape = {
@@ -98,7 +123,14 @@ const seed: PersistShape = {
   alerts: seedAlerts,
   memory: seedMemory,
   device: seedDevice,
+  personalization: defaultPersonalization,
   privacy: defaultPrivacy,
+  supportRequests: [],
+  referrals: [],
+}
+
+function today() {
+  return new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
@@ -107,7 +139,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    setState(readStorage<PersistShape>(STORAGE_KEY, seed))
+    const stored = readStorage<PersistShape | null>(STORAGE_KEY, null)
+    // Merge rather than replace so a stored payload from an earlier build still
+    // gains any keys added since it was written.
+    setState(stored ? { ...seed, ...stored } : seed)
     setHydrated(true)
   }, [])
 
@@ -238,19 +273,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     (text: string, category: MemoryItem['category']) =>
       patch((current) => ({
         ...current,
-        memory: [
-          {
-            id: `mem_${Date.now()}`,
-            text,
-            category,
-            createdAt: new Date().toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            }),
-          },
-          ...current.memory,
-        ],
+        memory: [{ id: `mem_${Date.now()}`, text, category, createdAt: today() }, ...current.memory],
       })),
     [patch],
   )
@@ -271,13 +294,90 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const updateDevice = useCallback(
     (next: Partial<SobaDevice>) =>
-      patch((current) => ({ ...current, device: { ...current.device, ...next } })),
+      patch((current) => ({
+        ...current,
+        device: current.device ? { ...current.device, ...next } : current.device,
+      })),
+    [patch],
+  )
+
+  const pairDevice = useCallback(
+    (name: string) =>
+      patch((current) => ({
+        ...current,
+        device: { ...seedDevice, name: name.trim() || seedDevice.name, lastSync: 'Just now' },
+      })),
+    [patch],
+  )
+
+  const unpairDevice = useCallback(() => patch((current) => ({ ...current, device: null })), [patch])
+
+  const updatePersonalization = useCallback(
+    (next: Partial<Personalization>) =>
+      patch((current) => ({ ...current, personalization: { ...current.personalization, ...next } })),
     [patch],
   )
 
   const updatePrivacy = useCallback(
     (next: Partial<PrivacySettings>) =>
       patch((current) => ({ ...current, privacy: { ...current.privacy, ...next } })),
+    [patch],
+  )
+
+  const createSupportRequest = useCallback(
+    (request: Omit<SupportRequest, 'id' | 'createdAt' | 'expiresAt' | 'status'>) => {
+      const id = `req_${Date.now()}`
+      patch((current) => ({
+        ...current,
+        supportRequests: [
+          {
+            ...request,
+            id,
+            createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            expiresAt: Date.now() + 30 * 60 * 1000,
+            status: 'queued',
+          },
+          ...current.supportRequests,
+        ],
+      }))
+      return id
+    },
+    [patch],
+  )
+
+  const advanceSupportRequest = useCallback(
+    (id: string, status: SupportRequest['status']) =>
+      patch((current) => ({
+        ...current,
+        supportRequests: current.supportRequests.map((r) => (r.id === id ? { ...r, status } : r)),
+      })),
+    [patch],
+  )
+
+  const createReferral = useCallback(
+    (referral: Omit<Referral, 'id' | 'createdAt' | 'status'>) =>
+      patch((current) => ({
+        ...current,
+        referrals: [
+          { ...referral, id: `ref_${Date.now()}`, createdAt: today(), status: 'reported-by-you' },
+          ...current.referrals,
+        ],
+      })),
+    [patch],
+  )
+
+  const updateReferral = useCallback(
+    (id: string, status: Referral['status']) =>
+      patch((current) => ({
+        ...current,
+        referrals: current.referrals.map((r) => (r.id === id ? { ...r, status } : r)),
+      })),
+    [patch],
+  )
+
+  const removeReferral = useCallback(
+    (id: string) =>
+      patch((current) => ({ ...current, referrals: current.referrals.filter((r) => r.id !== id) })),
     [patch],
   )
 
@@ -295,7 +395,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         alerts: [
           {
             id: `a_${now.getTime()}`,
-            date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            date: today(),
             isoDate: now.toISOString().slice(0, 10),
             title: 'Immediate check-in recommended',
             description:
@@ -352,8 +452,19 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       removeMemory,
       device: state.device,
       updateDevice,
+      pairDevice,
+      unpairDevice,
+      personalization: state.personalization,
+      updatePersonalization,
       privacy: state.privacy,
       updatePrivacy,
+      supportRequests: state.supportRequests,
+      createSupportRequest,
+      advanceSupportRequest,
+      referrals: state.referrals,
+      createReferral,
+      updateReferral,
+      removeReferral,
       safetyModeActive,
       triggerSafetyEscalation,
       clearSafetyEscalation,
@@ -377,7 +488,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       updateMemory,
       removeMemory,
       updateDevice,
+      pairDevice,
+      unpairDevice,
+      updatePersonalization,
       updatePrivacy,
+      createSupportRequest,
+      advanceSupportRequest,
+      createReferral,
+      updateReferral,
+      removeReferral,
       triggerSafetyEscalation,
       clearSafetyEscalation,
       resetDemoData,

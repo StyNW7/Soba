@@ -98,31 +98,52 @@ interface StatCardProps {
 export function StatCard({ icon: Icon, label, value, hint, tone = 'surface', trend }: StatCardProps) {
   const dark = tone === 'brown'
   return (
-    <Card tone={tone} padding="md" interactive className="flex flex-col justify-between gap-5">
-      <div className="flex items-start justify-between gap-3">
+    <Card
+      tone={tone}
+      padding="md"
+      interactive
+      className="group relative flex flex-col justify-between gap-5 overflow-hidden"
+    >
+      {/* Accent wash that warms on hover without moving anything */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl transition-opacity duration-500',
+          dark ? 'bg-custard/20' : 'bg-apricot/10',
+          'opacity-0 group-hover:opacity-100',
+        )}
+      />
+      <div className="relative flex items-start justify-between gap-3">
         <p className={cn('text-sm font-medium', dark ? 'text-cream/80' : 'text-ink-secondary')}>{label}</p>
         <span
           className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
-            dark ? 'bg-cream/15 text-custard' : 'bg-cream text-brown',
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-300',
+            dark
+              ? 'bg-cream/15 text-custard'
+              : 'bg-cream text-brown group-hover:bg-apricot group-hover:text-white',
           )}
         >
           <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
         </span>
       </div>
-      <div>
-        <p className={cn('text-3xl font-semibold tracking-tight', dark ? 'text-cream' : 'text-brown-dark')}>
+      <div className="relative">
+        <p
+          className={cn(
+            'text-[32px] font-semibold leading-none tracking-tight tabular-nums',
+            dark ? 'text-cream' : 'text-brown-dark',
+          )}
+        >
           {value}
         </p>
         {hint ? (
-          <p className={cn('mt-1.5 text-xs leading-relaxed', dark ? 'text-cream/70' : 'text-ink-muted')}>
+          <p className={cn('mt-2 text-xs leading-relaxed', dark ? 'text-cream/70' : 'text-ink-muted')}>
             {hint}
           </p>
         ) : null}
         {trend ? (
           <p
             className={cn(
-              'mt-1.5 text-xs font-medium',
+              'mt-2 text-xs font-medium',
               trend.direction === 'up'
                 ? 'text-sage'
                 : trend.direction === 'down'
@@ -147,16 +168,16 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, action, eyebrow }: PageHeaderProps) {
   return (
-    <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <header className="mb-7 flex flex-col gap-5 border-b border-line/70 pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-apricot">{eyebrow}</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-apricot">{eyebrow}</p>
         ) : null}
         <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-brown-dark sm:text-[34px]">
           {title}
         </h1>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-secondary sm:text-base">
+          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-ink-secondary sm:text-base">
             {description}
           </p>
         ) : null}

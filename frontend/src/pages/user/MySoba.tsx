@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import {
   BatteryMedium,
   Bluetooth,
   Cpu,
+  Link2Off,
   Mic,
   MicOff,
   Moon,
@@ -10,23 +12,19 @@ import {
   Volume2,
   Wifi,
 } from 'lucide-react'
-import { PageHeader, PrivacyNote, StatCard } from '../../components/ui/Feedback'
+import { EmptyState, PageHeader, PrivacyNote, StatCard } from '../../components/ui/Feedback'
 import { Card, SectionCard } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
-import { Select } from '../../components/ui/Field'
+import { Input, Select } from '../../components/ui/Field'
 import { Progress, Toggle } from '../../components/ui/Controls'
+import { Modal } from '../../components/ui/Modal'
 import { CompanionMockup } from '../../components/landing/Mockups'
+import { PairDeviceModal } from '../../components/dashboard/PairDeviceModal'
 import { useAppData } from '../../context/AppDataContext'
 import { useToast } from '../../context/ToastContext'
 import { deviceActivity } from '../../data/mockDevice'
 import type { SobaDevice } from '../../types'
-
-const personalityOptions = [
-  { value: 'calm', label: 'Calm' },
-  { value: 'friendly', label: 'Friendly' },
-  { value: 'encouraging', label: 'Encouraging' },
-]
 
 const listeningOptions = [
   { value: 'push-to-talk', label: 'Push to talk' },
@@ -35,8 +33,51 @@ const listeningOptions = [
 ]
 
 export default function MySoba() {
-  const { device, updateDevice } = useAppData()
+  const { device, updateDevice, pairDevice, unpairDevice } = useAppData()
   const { toast } = useToast()
+  const [pairOpen, setPairOpen] = useState(false)
+  const [unpairOpen, setUnpairOpen] = useState(false)
+  const [renameOpen, setRenameOpen] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
+  const [syncing, setSyncing] = useState(false)
+
+  function handleSync() {
+    if (!device) return
+    setSyncing(true)
+    window.setTimeout(() => {
+      updateDevice({ lastSync: 'Just now' })
+      setSyncing(false)
+      toast('Device synced', { description: 'Approved memories and settings are up to date.' })
+    }, 1200)
+  }
+
+  // Unpaired state — the app is fully usable without hardware (F1 step 4).
+  if (!device) {
+    return (
+      <>
+        <PageHeader
+          title="My Soba"
+          description="Pair a Soba Companion, or keep using the app on its own. The app works fully without hardware."
+        />
+
+        <EmptyState
+          icon={Cpu}
+          title="No companion paired"
+          description="Pair your Soba Companion to see battery, connection, and voice settings here. Everything else in the app works without it."
+          action={<Button onClick={() => setPairOpen(true)}>Pair a companion</Button>}
+        />
+
+        <PairDeviceModal
+          open={pairOpen}
+          onClose={() => setPairOpen(false)}
+          onPaired={(name) => {
+            pairDevice(name)
+            toast('Companion paired', { description: `${name} is now linked to your account.` })
+          }}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -44,14 +85,12 @@ export default function MySoba() {
         title="My Soba"
         description="Your companion device, its settings, and exactly what it is doing right now."
         action={
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => toast('Sync requested', { description: 'The device will sync on its next check-in.' })}
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden="true" />
-            Sync now
-          </Button>
+          <div className="flex gap-2.5">
+            <Button variant="secondary" size="lg" onClick={handleSync} loading={syncing}>
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              Sync now
+            </Button>
+          </div>
         }
       />
 
@@ -59,15 +98,36 @@ export default function MySoba() {
         <Card tone="cream" padding="lg" className="flex flex-col items-center justify-center text-center">
           <CompanionMockup className="max-w-[220px]" />
           <h2 className="mt-7 text-xl font-semibold text-brown-dark">{device.name}</h2>
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             <Badge tone={device.status === 'connected' ? 'sage' : 'neutral'}>
-              {device.status === 'connected' ? 'Connected' : device.status === 'syncing' ? 'Syncing' : 'Offline'}
+              {device.status === 'connected'
+                ? 'Connected'
+                : device.status === 'syncing'
+                  ? 'Syncing'
+                  : 'Offline'}
             </Badge>
             <Badge tone={device.micEnabled ? 'apricot' : 'neutral'}>
               {device.micEnabled ? 'Microphone on' : 'Microphone off'}
             </Badge>
           </div>
           <p className="mt-4 text-sm text-ink-secondary">Last sync {device.lastSync}</p>
+
+          <div className="mt-6 flex w-full flex-col gap-2.5 sm:flex-row">
+            <Button
+              variant="secondary"
+              fullWidth
+              onClick={() => {
+                setNameDraft(device.name)
+                setRenameOpen(true)
+              }}
+            >
+              Rename
+            </Button>
+            <Button variant="outline" fullWidth onClick={() => setUnpairOpen(true)}>
+              <Link2Off className="h-4 w-4" aria-hidden="true" />
+              Unpair
+            </Button>
+          </div>
         </Card>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -77,7 +137,12 @@ export default function MySoba() {
           <StatCard icon={Bluetooth} label="Pairing" value="Paired" hint="Provisioned on this account" />
 
           <Card padding="lg" className="sm:col-span-2">
-            <Progress value={device.battery} label="Battery level" showValue tone={device.battery > 25 ? 'sage' : 'apricot'} />
+            <Progress
+              value={device.battery}
+              label="Battery level"
+              showValue
+              tone={device.battery > 25 ? 'sage' : 'apricot'}
+            />
             <p className="mt-3 text-xs leading-relaxed text-ink-muted">
               Battery is reported when the device syncs, so this can lag behind by a few minutes.
             </p>
@@ -87,21 +152,11 @@ export default function MySoba() {
 
       <div className="grid gap-5 xl:grid-cols-2">
         <SectionCard
-          title="Voice & interaction"
-          description="How the companion sounds and when it listens."
+          title="Sound & interaction"
+          description="Volume and when the companion listens. Voice and personality live in Personalization."
           icon={<Volume2 className="h-[18px] w-[18px]" />}
         >
           <div className="space-y-5">
-            <Select
-              label="Voice personality"
-              options={personalityOptions}
-              value={device.voicePersonality}
-              onChange={(event) =>
-                updateDevice({ voicePersonality: event.target.value as SobaDevice['voicePersonality'] })
-              }
-              hint="Changes tone only. It does not change what Soba will or will not do."
-            />
-
             <div>
               <label htmlFor="volume" className="text-sm font-medium text-brown-dark">
                 Volume
@@ -158,7 +213,7 @@ export default function MySoba() {
           >
             <div className="space-y-5">
               <div
-                className={`flex items-center gap-4 rounded-2xl border p-4 ${
+                className={`flex flex-wrap items-center gap-4 rounded-2xl border p-4 ${
                   device.micEnabled ? 'border-apricot/30 bg-apricot-soft/40' : 'border-line bg-muted'
                 }`}
               >
@@ -169,7 +224,7 @@ export default function MySoba() {
                 >
                   {device.micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
                 </span>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-[150px] flex-1">
                   <p className="text-sm font-semibold text-brown-dark">
                     Microphone {device.micEnabled ? 'enabled' : 'disabled'}
                   </p>
@@ -182,7 +237,12 @@ export default function MySoba() {
                 <Button
                   variant={device.micEnabled ? 'outline' : 'primary'}
                   size="sm"
-                  onClick={() => updateDevice({ micEnabled: !device.micEnabled })}
+                  onClick={() => {
+                    updateDevice({ micEnabled: !device.micEnabled })
+                    toast(device.micEnabled ? 'Microphone disabled' : 'Microphone enabled', {
+                      tone: device.micEnabled ? 'warning' : 'success',
+                    })
+                  }}
                 >
                   <Power className="h-3.5 w-3.5" aria-hidden="true" />
                   {device.micEnabled ? 'Disable' : 'Enable'}
@@ -243,6 +303,82 @@ export default function MySoba() {
           </Button>
         </div>
       </Card>
+
+      {/* Rename */}
+      <Modal
+        open={renameOpen}
+        onClose={() => setRenameOpen(false)}
+        title="Rename this companion"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setRenameOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={!nameDraft.trim()}
+              onClick={() => {
+                updateDevice({ name: nameDraft.trim() })
+                setRenameOpen(false)
+                toast('Device renamed')
+              }}
+            >
+              Save name
+            </Button>
+          </>
+        }
+      >
+        <Input
+          label="Device name"
+          value={nameDraft}
+          onChange={(event) => setNameDraft(event.target.value)}
+          data-autofocus
+          maxLength={40}
+        />
+      </Modal>
+
+      {/* Unpair — the dialog names the exact device */}
+      <Modal
+        open={unpairOpen}
+        onClose={() => setUnpairOpen(false)}
+        title={`Unpair ${device.name}?`}
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setUnpairOpen(false)}>
+              Keep paired
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                unpairDevice()
+                setUnpairOpen(false)
+                toast('Companion unpaired', {
+                  tone: 'warning',
+                  description: 'The app keeps working. You can pair again at any time.',
+                })
+              }}
+            >
+              Unpair device
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm leading-relaxed text-ink-secondary">
+          <span className="font-semibold text-brown-dark">{device.name}</span> will be removed from
+          your account and will stop syncing. Your reflections, mood history, and memories stay
+          exactly as they are.
+        </p>
+      </Modal>
+
+      <PairDeviceModal
+        open={pairOpen}
+        onClose={() => setPairOpen(false)}
+        onPaired={(name) => {
+          pairDevice(name)
+          toast('Companion paired')
+        }}
+      />
     </>
   )
 }

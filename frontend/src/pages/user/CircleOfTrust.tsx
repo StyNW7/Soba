@@ -1,12 +1,24 @@
 import { useState } from 'react'
-import { MessageCircle, Phone, Plus, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react'
+import {
+  Check,
+  Copy,
+  MessageCircle,
+  Phone,
+  Plus,
+  Send,
+  ShieldCheck,
+  Trash2,
+  UserPlus,
+  Users,
+} from 'lucide-react'
 import { EmptyState, PageHeader, PrivacyNote } from '../../components/ui/Feedback'
-import { Card } from '../../components/ui/Card'
+import { Card, SectionCard } from '../../components/ui/Card'
 import { Avatar, Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Input, Select } from '../../components/ui/Field'
 import { Toggle } from '../../components/ui/Controls'
 import { Modal } from '../../components/ui/Modal'
+import { ContactRequestModal } from '../../components/dashboard/ContactRequestModal'
 import { useAppData } from '../../context/AppDataContext'
 import { useToast } from '../../context/ToastContext'
 import type { TrustedContact } from '../../types'
@@ -31,17 +43,23 @@ const priorityOptions = [
   { value: 'backup', label: 'Backup' },
 ]
 
+const INVITE_CODE = 'SOBA-8V3K-2QNP'
+
 export default function CircleOfTrust() {
-  const { contacts, addContact, updateContact, removeContact } = useAppData()
+  const { contacts, addContact, updateContact, removeContact, supportRequests } = useAppData()
   const { toast } = useToast()
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<TrustedContact | null>(null)
+  const [requestOpen, setRequestOpen] = useState(false)
+  const [requestFor, setRequestFor] = useState<string | undefined>(undefined)
 
   const [name, setName] = useState('')
   const [relationship, setRelationship] = useState('')
   const [phone, setPhone] = useState('')
   const [priority, setPriority] = useState<TrustedContact['priority']>('secondary')
   const [alerts, setAlerts] = useState(false)
+
+  const recentRequests = supportRequests.slice(0, 4)
 
   function resetForm() {
     setName('')
@@ -66,16 +84,27 @@ export default function CircleOfTrust() {
     toast('Invitation sent', { description: 'They join your circle once they accept.' })
   }
 
+  function openRequest(contactId?: string) {
+    setRequestFor(contactId)
+    setRequestOpen(true)
+  }
+
   return (
     <>
       <PageHeader
         title="Circle of Trust"
         description="The people Soba can help you reach. You decide who belongs here and what each person can do."
         action={
-          <Button size="lg" onClick={() => setAddOpen(true)}>
-            <UserPlus className="h-4 w-4" aria-hidden="true" />
-            Add trusted person
-          </Button>
+          <div className="flex flex-col gap-2.5 sm:flex-row">
+            <Button variant="secondary" size="lg" onClick={() => openRequest()}>
+              <Send className="h-4 w-4" aria-hidden="true" />
+              Ask someone to reach out
+            </Button>
+            <Button size="lg" onClick={() => setAddOpen(true)}>
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
+              Add trusted person
+            </Button>
+          </div>
         }
       />
 
@@ -124,7 +153,9 @@ export default function CircleOfTrust() {
               <dl className="mt-5 space-y-2.5 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <dt className="text-ink-muted">Phone</dt>
-                  <dd className="truncate font-medium text-brown-dark">{contact.phone || 'Not provided'}</dd>
+                  <dd className="truncate font-medium text-brown-dark">
+                    {contact.phone || 'Not provided'}
+                  </dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="text-ink-muted">Priority</dt>
@@ -138,11 +169,31 @@ export default function CircleOfTrust() {
                 </div>
               </dl>
 
+              {contact.status === 'active' ? (
+                <div className="mt-5">
+                  <Button size="sm" fullWidth onClick={() => openRequest(contact.id)}>
+                    <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                    Ask {contact.name} to reach out
+                  </Button>
+                </div>
+              ) : (
+                <p className="mt-5 rounded-xl bg-muted/60 px-3.5 py-2.5 text-xs leading-relaxed text-ink-secondary">
+                  Soba can only send a request once {contact.name} accepts the invitation. You can
+                  still call or message directly.
+                </p>
+              )}
+
               <div className="mt-auto grid grid-cols-3 gap-2 border-t border-line pt-4">
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => toast(`Opening your phone to call ${contact.name}`, { tone: 'info' })}
+                  disabled={!contact.phone}
+                  onClick={() =>
+                    toast(`Opening your phone to call ${contact.name}`, {
+                      tone: 'info',
+                      description: 'Soba does not place the call itself.',
+                    })
+                  }
                 >
                   <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                   Call
@@ -150,7 +201,13 @@ export default function CircleOfTrust() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => toast(`Opening a message to ${contact.name}`, { tone: 'info' })}
+                  disabled={!contact.phone}
+                  onClick={() =>
+                    toast(`Opening a message to ${contact.name}`, {
+                      tone: 'info',
+                      description: 'The text stays editable in your own app.',
+                    })
+                  }
                 >
                   <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
                   Message
@@ -163,6 +220,83 @@ export default function CircleOfTrust() {
           ))}
         </div>
       )}
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-2">
+        {/* Guardian invitation (F1 step 7) */}
+        <SectionCard
+          title="Invite a parent or guardian"
+          description="Share this code so someone can request a connection. You approve it before anything is shared."
+          icon={<UserPlus className="h-[18px] w-[18px]" />}
+        >
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-line bg-cream/50 px-5 py-4">
+            <code className="flex-1 font-mono text-lg tracking-wider text-brown-dark">{INVITE_CODE}</code>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard?.writeText(INVITE_CODE)
+                toast('Invite code copied')
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+              Copy
+            </Button>
+          </div>
+          <ol className="mt-4 space-y-2 text-sm leading-relaxed text-ink-secondary">
+            {[
+              'They create a guardian account and enter this code.',
+              'You review who accepted before the link becomes active.',
+              'Sharing scopes start empty and are configured by you afterwards.',
+            ].map((item, index) => (
+              <li key={item} className="flex items-start gap-2.5">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cream text-[10px] font-semibold text-brown">
+                  {index + 1}
+                </span>
+                {item}
+              </li>
+            ))}
+          </ol>
+        </SectionCard>
+
+        <SectionCard
+          title="Recent requests"
+          description="Requests you have sent through Soba, and what happened to them."
+        >
+          {recentRequests.length === 0 ? (
+            <p className="rounded-2xl bg-muted/50 px-4 py-6 text-center text-sm leading-relaxed text-ink-secondary">
+              You have not asked anyone to reach out yet. When you do, the status appears here.
+            </p>
+          ) : (
+            <ul className="divide-y divide-line">
+              {recentRequests.map((request) => (
+                <li key={request.id} className="flex items-center justify-between gap-3 py-3.5">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-brown-dark">
+                      {request.contactName}
+                    </p>
+                    <p className="text-xs text-ink-muted">Sent at {request.createdAt}</p>
+                  </div>
+                  <Badge
+                    tone={
+                      request.status === 'acknowledged'
+                        ? 'sage'
+                        : request.status === 'cancelled' || request.status === 'expired'
+                          ? 'neutral'
+                          : 'amber'
+                    }
+                  >
+                    {request.status === 'acknowledged'
+                      ? 'Acknowledged'
+                      : request.status === 'accepted'
+                        ? 'Accepted by service'
+                        : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SectionCard>
+      </div>
 
       <PrivacyNote className="mt-6">
         Contacts can be reached through Soba. They cannot read your conversations, journal, or
@@ -208,7 +342,7 @@ export default function CircleOfTrust() {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             placeholder="+62 812 0000 0000"
-            hint="Optional. Used only for calls and messages you start yourself."
+            hint="Optional and user-entered. Used only for calls and messages you start yourself."
           />
           <Select
             label="Priority"
@@ -254,6 +388,16 @@ export default function CircleOfTrust() {
       >
         {editing ? (
           <div className="space-y-5">
+            <Input
+              label="Phone"
+              type="tel"
+              value={editing.phone}
+              onChange={(event) => {
+                updateContact(editing.id, { phone: event.target.value })
+                setEditing({ ...editing, phone: event.target.value })
+              }}
+              hint="User-entered and unverified. Automatic alerts go to their linked Soba account, not this number."
+            />
             <Select
               label="Priority"
               options={priorityOptions}
@@ -275,9 +419,37 @@ export default function CircleOfTrust() {
                 description="Only a recommendation to check in is sent. Never the conversation itself."
               />
             </div>
+            {editing.status === 'invited' ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-amber-soft/60 px-4 py-3">
+                <p className="text-xs leading-relaxed text-[#7E6220]">
+                  Invitation is still pending acceptance.
+                </p>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    updateContact(editing.id, { status: 'active' })
+                    setEditing({ ...editing, status: 'active' })
+                    toast(`${editing.name} accepted the invitation`, {
+                      description: 'Demo shortcut: simulates their acceptance.',
+                    })
+                  }}
+                >
+                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  Simulate acceptance
+                </Button>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </Modal>
+
+      <ContactRequestModal
+        open={requestOpen}
+        onClose={() => setRequestOpen(false)}
+        contacts={contacts}
+        preselectedId={requestFor}
+      />
     </>
   )
 }

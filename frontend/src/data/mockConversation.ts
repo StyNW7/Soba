@@ -30,15 +30,52 @@ export const suggestedPrompts = [
 
 export const safetyTriggerPhrase = 'I do not want to be here anymore.'
 
+export const supportTriggerPhrase = 'I can feel my chest getting tight and I cannot slow down.'
+
 export const safetyResponse =
   'Thank you for telling me that. I want to make sure you are not carrying this alone right now. I am not able to be the only support here, and I would rather help you reach someone who can be with you properly.'
 
-export const sobaReplies = [
+export const supportResponse =
+  'That sounds like a lot happening in your body at once. Before we keep talking, would it help to slow your breathing with me for two minutes? We can come back to the rest afterwards.'
+
+/** Markers that move the conversation into Support Mode (F3). */
+export const supportMarkers = [
+  'cannot breathe',
+  'can not breathe',
+  'chest',
+  'panic',
+  'shaking',
+  'cannot slow down',
+  'racing',
+  'heart is pounding',
+  'overwhelmed',
+]
+
+/** Markers that move the conversation into Safety Mode (F3). */
+export const riskMarkers = [
+  'do not want to be here',
+  "don't want to be here",
+  'want to die',
+  'end my life',
+  'hurt myself',
+  'no reason to go on',
+  'not worth being here',
+]
+
+/** Replies weighted toward listening, used when listen-first is enabled. */
+export const listeningReplies = [
   'I hear you. Can you say a little more about what that felt like?',
-  'That makes sense given everything you have described. What part of it is sitting heaviest right now?',
   'Thank you for saying that out loud. You do not have to have it figured out here.',
-  'It sounds like today asked a lot of you. Would it help to slow down for a moment before we keep going?',
   'I am listening. Take whatever time you need.',
+  'That makes sense given everything you have described. What part of it is sitting heaviest right now?',
+]
+
+/** Replies that offer a next step, used when suggestions are preferred. */
+export const suggestingReplies = [
+  'It sounds like today asked a lot of you. Would it help to slow down for a moment before we keep going?',
+  'That is worth putting somewhere you can come back to. Would you like to keep a reflection at the end?',
+  'One thing that sometimes helps here is naming the smallest next step. Does anything come to mind?',
+  'Would it help to try a short grounding exercise, or would you rather keep talking?',
 ]
 
 export const pastSessions = [

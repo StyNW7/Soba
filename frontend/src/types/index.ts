@@ -149,3 +149,61 @@ export interface ConversationTurn {
   time: string
   mode?: 'standard' | 'safety'
 }
+
+export type ConversationMode = 'normal' | 'support' | 'safety'
+
+export type VoiceId = 'marin' | 'cedar'
+
+export interface Personalization {
+  personality: 'calm' | 'friendly' | 'encouraging'
+  voiceId: VoiceId
+  listenFirst: boolean
+  useMemory: boolean
+  adaptiveTone: boolean
+}
+
+/**
+ * The structured summary produced when a conversation ends (F4). Nothing here
+ * is persisted until the user makes each choice explicitly.
+ */
+export interface SessionDraft {
+  id: string
+  sessionTitle: string
+  mood: MoodLabel
+  topic: string
+  reflection: string
+  insights: string[]
+  safetyLevel: 'none' | 'monitor' | 'elevated'
+  memoryCandidates: { id: string; text: string; category: MemoryItem['category'] }[]
+  expiresAt: number
+}
+
+export interface SupportRequest {
+  id: string
+  contactId: string
+  contactName: string
+  relationship: string
+  sharedPhone?: string
+  message: string
+  createdAt: string
+  expiresAt: number
+  status: 'queued' | 'accepted' | 'acknowledged' | 'cancelled' | 'expired' | 'failed'
+}
+
+export interface Referral {
+  id: string
+  professionalId: string
+  professionalName: string
+  role: string
+  requestedFor: string
+  note?: string
+  createdAt: string
+  status: 'reported-by-you' | 'contacted' | 'scheduled' | 'closed'
+}
+
+export interface PairingSession {
+  claimId: string
+  deviceCode: string
+  expiresAt: number
+  stage: 'code' | 'connecting' | 'wifi' | 'claiming' | 'done'
+}

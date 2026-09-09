@@ -83,7 +83,6 @@ export default function Journal() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="w-full lg:max-w-sm">
             <Input
-              label=""
               placeholder="Search reflections"
               icon={<Search className="h-4 w-4" />}
               value={query}

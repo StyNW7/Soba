@@ -33,6 +33,24 @@ export const thirtyDayMood = thirtyDayScores.map((score, index) => {
   }
 })
 
+/**
+ * A longer series for the 90-day view. Generated deterministically so the chart
+ * is stable between renders rather than reshuffling on every visit.
+ */
+export const ninetyDayMood = Array.from({ length: 90 }, (_, index) => {
+  const day = index + 1
+  const weekly = Math.sin(day / 3.2) * 6
+  const drift = Math.cos(day / 11) * 5
+  const score = Math.round(66 + weekly + drift)
+  const date = new Date(2026, 5, 12)
+  date.setDate(date.getDate() + index)
+  return {
+    date: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+    score,
+    label: labelFor(score),
+  }
+})
+
 export const moodDistribution = [
   { name: 'Calm', value: 9, color: '#D4954D' },
   { name: 'Okay', value: 11, color: '#E3DEA4' },

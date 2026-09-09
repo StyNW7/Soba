@@ -14,8 +14,8 @@ export function PageHero({ eyebrow, title, description, children, tone = 'cream'
   return (
     <section
       className={cn(
-        'relative overflow-hidden border-b border-line py-16 lg:py-24',
-        tone === 'cream' ? 'bg-cream/60' : 'bg-background',
+        'grain relative overflow-hidden border-b border-line py-16 lg:py-24',
+        tone === 'cream' ? 'mesh-warm bg-cream/60' : 'bg-background',
       )}
     >
       <div

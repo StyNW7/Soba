@@ -10,6 +10,7 @@ import {
   NotebookPen,
   Settings,
   ShieldCheck,
+  Sparkles,
   Stethoscope,
   TrendingUp,
   Users,
@@ -33,6 +34,7 @@ export const userNav: NavItem[] = [
   { to: '/app/user/circle', label: 'Circle of Trust', icon: Users },
   { to: '/app/user/support', label: 'Professional Support', icon: Stethoscope },
   { to: '/app/user/device', label: 'My Soba', icon: Cpu },
+  { to: '/app/user/personalization', label: 'Personalization', icon: Sparkles },
   { to: '/app/user/privacy', label: 'Privacy', icon: LockKeyhole },
   { to: '/app/user/settings', label: 'Settings', icon: Settings },
 ]

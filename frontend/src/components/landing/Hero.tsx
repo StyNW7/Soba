@@ -5,65 +5,106 @@ import { CompanionMockup, PhoneMockup, StatusChip } from './Mockups'
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-28 lg:pt-20">
-      {/* Warm ambient shapes */}
+    <section className="mesh-warm grain relative overflow-hidden pb-20 pt-10 sm:pt-14 lg:pb-28 lg:pt-16">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-40 h-[520px] w-[520px] rounded-full bg-cream blur-3xl opacity-70" />
-        <div className="absolute -right-24 top-24 h-[420px] w-[420px] rounded-full bg-custard/40 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-[300px] w-[300px] rounded-full bg-apricot-soft/50 blur-3xl" />
+        <div className="absolute -left-40 -top-48 h-[560px] w-[560px] rounded-full bg-cream/70 blur-3xl" />
+        <div className="absolute -right-32 top-16 h-[460px] w-[460px] rounded-full bg-custard/35 blur-3xl" />
+        <div className="absolute -bottom-24 left-1/3 h-[340px] w-[340px] rounded-full bg-apricot-soft/45 blur-3xl" />
       </div>
 
       <div className="container-soba relative">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
-          <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 px-3.5 py-1.5 text-xs font-medium text-brown backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-apricot" aria-hidden="true" />
-              Listen. Support. Connect.
-            </span>
+        <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+          <div>
+            <Reveal>
+              <span className="inline-flex items-center gap-2.5 rounded-full border border-line/80 bg-surface/70 py-1.5 pl-2 pr-4 text-xs font-medium text-brown shadow-card backdrop-blur">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-apricot/15">
+                  <span className="h-1.5 w-1.5 rounded-full bg-apricot" aria-hidden="true" />
+                </span>
+                Listen. Support. Connect.
+              </span>
+            </Reveal>
 
-            <h1 className="mt-6 heading-serif text-[42px] leading-[1.08] sm:text-[56px] lg:text-[64px]">
-              Someone to talk to,
-              <br />
-              <span className="text-apricot">when words feel difficult.</span>
-            </h1>
+            <Reveal delay={80}>
+              <h1 className="mt-7 heading-serif text-[44px] leading-[1.04] sm:text-[58px] lg:text-[68px]">
+                Someone to talk to,
+                <br />
+                <span className="relative inline-block text-apricot">
+                  when words feel difficult.
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 420 12"
+                    preserveAspectRatio="none"
+                    className="absolute -bottom-1 left-0 h-2.5 w-full text-custard"
+                  >
+                    <path
+                      d="M2 8C90 3 200 2 418 6"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </svg>
+                </span>
+              </h1>
+            </Reveal>
 
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-secondary sm:text-lg">
-              Soba is a voice-first emotional companion that listens without judgment, supports
-              everyday wellbeing, and helps you connect with the people who matter when you need
-              them.
-            </p>
+            <Reveal delay={140}>
+              <p className="mt-8 max-w-xl text-base leading-relaxed text-ink-secondary sm:text-lg">
+                Soba is a voice-first emotional companion that listens without judgment, supports
+                everyday wellbeing, and helps you connect with the people who matter when you need
+                them.
+              </p>
+            </Reveal>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink to="/signup" size="lg" className="sm:w-auto">
-                Meet Soba
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </ButtonLink>
-              <ButtonLink to="/how-it-works" variant="secondary" size="lg">
-                See How It Works
-              </ButtonLink>
-            </div>
+            <Reveal delay={200}>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <ButtonLink to="/signup" size="lg" className="group sm:w-auto">
+                  Meet Soba
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </ButtonLink>
+                <ButtonLink to="/how-it-works" variant="secondary" size="lg">
+                  See How It Works
+                </ButtonLink>
+              </div>
+            </Reveal>
 
-            <p className="mt-7 inline-flex items-center gap-2 text-sm text-ink-muted">
-              <ShieldCheck className="h-4 w-4 text-sage" aria-hidden="true" />
-              Designed for support, not diagnosis.
-            </p>
-          </Reveal>
+            <Reveal delay={260}>
+              <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-line/70 pt-6">
+                <p className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                  <ShieldCheck className="h-4 w-4 text-sage" aria-hidden="true" />
+                  Designed for support, not diagnosis.
+                </p>
+                <p className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                  <Mic className="h-4 w-4 text-brown-soft" aria-hidden="true" />
+                  Nothing saved unless you choose.
+                </p>
+              </div>
+            </Reveal>
+          </div>
 
-          <Reveal delay={120} className="relative">
+          <Reveal delay={160} className="relative">
             <div className="relative mx-auto flex max-w-[520px] items-center justify-center">
-              <CompanionMockup className="translate-x-2 sm:translate-x-6" />
-              <PhoneMockup className="absolute -bottom-8 -left-2 hidden scale-[0.86] sm:block lg:-left-10 lg:scale-95" />
+              {/* Soft plinth behind the composition */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-6 bottom-2 top-10 rounded-[46%_46%_38%_38%/40%_40%_22%_22%] bg-gradient-to-b from-white/50 to-transparent blur-2xl"
+              />
+              <CompanionMockup className="relative translate-x-2 sm:translate-x-6" />
+              <PhoneMockup className="absolute -bottom-10 -left-2 hidden scale-[0.86] sm:block lg:-left-12 lg:scale-95" />
               <StatusChip
                 icon={Mic}
                 title="Listening"
                 subtitle="Nothing saved unless you choose"
-                className="absolute -top-2 right-0 hidden animate-fade-up sm:flex lg:-right-6"
+                className="absolute -top-1 right-0 hidden sm:flex lg:-right-8"
               />
               <StatusChip
                 icon={HeartHandshake}
                 title="Maria is in your circle"
                 subtitle="One tap to reach her"
-                className="absolute bottom-6 right-0 hidden animate-fade-up lg:flex"
+                className="absolute bottom-8 right-0 hidden lg:flex"
               />
             </div>
           </Reveal>
@@ -83,9 +124,13 @@ const values = [
 export function TrustStrip() {
   return (
     <section className="border-y border-line bg-surface/70">
-      <div className="container-soba grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:py-12">
+      <div className="container-soba grid divide-y divide-line/70 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
         {values.map((value, index) => (
-          <Reveal key={value.title} delay={index * 70} className="flex items-start gap-3.5">
+          <Reveal
+            key={value.title}
+            delay={index * 70}
+            className="flex items-start gap-3.5 py-7 sm:px-6 lg:px-7 lg:py-10"
+          >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-brown">
               <value.icon className="h-5 w-5" aria-hidden="true" />
             </span>

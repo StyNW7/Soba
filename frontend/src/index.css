@@ -66,6 +66,37 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Warm ambient wash used behind hero and CTA sections. */
+  .mesh-warm {
+    background-image:
+      radial-gradient(at 12% 18%, rgba(242, 245, 226, 0.9) 0px, transparent 55%),
+      radial-gradient(at 88% 12%, rgba(227, 222, 164, 0.55) 0px, transparent 50%),
+      radial-gradient(at 72% 88%, rgba(212, 149, 77, 0.16) 0px, transparent 52%),
+      radial-gradient(at 8% 92%, rgba(233, 220, 198, 0.6) 0px, transparent 48%);
+  }
+
+  /* Very fine paper grain, keeps large flat areas from looking plasticky. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  }
+
+  /* Thin apricot rule used to open dashboard sections. */
+  .rule-accent::before {
+    content: '';
+    display: block;
+    width: 34px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #D4954D, #E3DEA4);
+    margin-bottom: 14px;
+  }
 }
 
 /* Custom scrollbar */

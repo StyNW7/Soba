@@ -480,7 +480,7 @@ export function FinalCTA() {
     <section className="py-20 lg:py-28">
       <div className="container-soba">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[36px] border border-custard/60 bg-gradient-to-br from-cream via-[#F7F3DF] to-apricot-soft px-6 py-16 text-center sm:px-12 lg:py-20">
+          <div className="mesh-warm grain relative overflow-hidden rounded-[36px] border border-custard/60 bg-cream px-6 py-16 text-center sm:px-12 lg:py-20">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-custard/50 blur-3xl"

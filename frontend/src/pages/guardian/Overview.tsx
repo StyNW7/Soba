@@ -9,8 +9,7 @@ import { MoodAreaChart } from '../../components/charts/MoodCharts'
 import { SafetyAlertBanner } from '../../components/dashboard/SafetyAlertBanner'
 import { useAuth } from '../../context/AuthContext'
 import { useAppData } from '../../context/AppDataContext'
-import { guardianTrend } from '../../data/mockGuardian'
-import { coachModules } from '../../data/mockGuardian'
+import { coachModules, guardianTrend } from '../../data/mockGuardian'
 
 export default function Overview() {
   const { user } = useAuth()

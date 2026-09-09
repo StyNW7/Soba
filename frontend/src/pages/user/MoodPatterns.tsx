@@ -12,6 +12,7 @@ import {
   checkinFrequency,
   moodDistribution,
   moodInsights,
+  ninetyDayMood,
   thirtyDayMood,
   weekdayPattern,
   weeklyMood,
@@ -26,7 +27,7 @@ export default function MoodPatterns() {
   const trendData = useMemo(() => {
     if (range === '7') return weeklyMood
     if (range === '30') return thirtyDayMood
-    return thirtyDayMood.concat(thirtyDayMood.map((point, index) => ({ ...point, date: `+${index}` })))
+    return ninetyDayMood
   }, [range])
 
   const average = Math.round(

@@ -8,16 +8,18 @@ import {
   Phone,
   Search,
   Stethoscope,
+  Trash2,
 } from 'lucide-react'
 import { AlertCard, EmptyState, PageHeader } from '../../components/ui/Feedback'
-import { Card } from '../../components/ui/Card'
+import { Card, SectionCard } from '../../components/ui/Card'
 import { Avatar, Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
-import { Input, Select } from '../../components/ui/Field'
+import { Input, Select, Textarea } from '../../components/ui/Field'
 import { Modal } from '../../components/ui/Modal'
+import { useAppData } from '../../context/AppDataContext'
 import { useToast } from '../../context/ToastContext'
 import { crisisResources, professionals } from '../../data/mockProfessionals'
-import type { Professional } from '../../types'
+import type { Professional, Referral } from '../../types'
 
 const modeOptions = [
   { value: 'all', label: 'Online and in-person' },
@@ -40,8 +42,18 @@ const languageOptions = [
   { value: 'English', label: 'English' },
 ]
 
+const referralStatusOptions = [
+  { value: 'reported-by-you', label: 'Reported by you' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'closed', label: 'Closed' },
+]
+
 export default function ProfessionalSupport() {
   const { toast } = useToast()
+  const { referrals, createReferral, updateReferral, removeReferral } = useAppData()
+  const [requestFor, setRequestFor] = useState<Professional | null>(null)
+  const [note, setNote] = useState('')
   const [query, setQuery] = useState('')
   const [mode, setMode] = useState('all')
   const [specialization, setSpecialization] = useState('all')
@@ -90,23 +102,20 @@ export default function ProfessionalSupport() {
       <Card padding="md" className="mb-5">
         <div className="grid gap-3 lg:grid-cols-4">
           <Input
-            label=""
             aria-label="Search professionals"
             placeholder="Search by name, city, or focus"
             icon={<Search className="h-4 w-4" />}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <Select label="" aria-label="Session mode" options={modeOptions} value={mode} onChange={(e) => setMode(e.target.value)} />
+          <Select aria-label="Session mode" options={modeOptions} value={mode} onChange={(e) => setMode(e.target.value)} />
           <Select
-            label=""
             aria-label="Specialization"
             options={specializationOptions}
             value={specialization}
             onChange={(e) => setSpecialization(e.target.value)}
           />
           <Select
-            label=""
             aria-label="Language"
             options={languageOptions}
             value={language}
@@ -172,14 +181,7 @@ export default function ProfessionalSupport() {
                 <Button variant="secondary" size="sm" onClick={() => setSelected(professional)}>
                   View profile
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    toast('Appointment request drafted', {
-                      description: 'Nothing is sent until you confirm the details.',
-                    })
-                  }
-                >
+                <Button size="sm" onClick={() => setRequestFor(professional)}>
                   Request
                 </Button>
               </div>
@@ -187,6 +189,128 @@ export default function ProfessionalSupport() {
           ))}
         </div>
       )}
+
+      {/* Referrals the user has recorded themselves (U7) */}
+      <SectionCard
+        title="Your referrals"
+        description="A record you keep for yourself. Soba does not contact practitioners on your behalf, and a status here is reported by you."
+        className="mt-6"
+      >
+        {referrals.length === 0 ? (
+          <p className="rounded-2xl bg-muted/50 px-4 py-6 text-center text-sm leading-relaxed text-ink-secondary">
+            No referrals yet. When you request an appointment, it is listed here so you can track it
+            in your own words.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {referrals.map((referral) => (
+              <li
+                key={referral.id}
+                className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-line bg-muted/40 p-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-brown-dark">{referral.professionalName}</p>
+                  <p className="text-xs text-ink-secondary">{referral.role}</p>
+                  {referral.note ? (
+                    <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{referral.note}</p>
+                  ) : null}
+                  <p className="mt-2 text-xs text-ink-muted">Recorded {referral.createdAt}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Select
+                    aria-label={`Status for ${referral.professionalName}`}
+                    options={referralStatusOptions}
+                    value={referral.status}
+                    onChange={(event) =>
+                      updateReferral(referral.id, event.target.value as Referral['status'])
+                    }
+                    className="h-10 w-[170px]"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Remove referral for ${referral.professionalName}`}
+                    onClick={() => {
+                      removeReferral(referral.id)
+                      toast('Referral removed', { tone: 'info' })
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-4 text-xs leading-relaxed text-ink-muted">
+          Closing a referral records that you are done tracking it. It does not mean treatment is
+          complete.
+        </p>
+      </SectionCard>
+
+      {/* Request appointment */}
+      <Modal
+        open={Boolean(requestFor)}
+        onClose={() => setRequestFor(null)}
+        title={requestFor ? `Request an appointment with ${requestFor.name}` : ''}
+        description="Nothing is sent automatically. This records the request so you can follow it up."
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setRequestFor(null)}>
+              Cancel
+            </Button>
+            <Button
+              data-autofocus
+              onClick={() => {
+                if (!requestFor) return
+                createReferral({
+                  professionalId: requestFor.id,
+                  professionalName: requestFor.name,
+                  role: requestFor.role,
+                  requestedFor: 'Myself',
+                  note: note.trim() || undefined,
+                })
+                setRequestFor(null)
+                setNote('')
+                toast('Referral recorded', {
+                  description: 'Contact details are shown so you can reach out directly.',
+                })
+              }}
+            >
+              Record request
+            </Button>
+          </>
+        }
+      >
+        {requestFor ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3.5 rounded-2xl bg-cream px-4 py-3.5">
+              <Avatar initials={requestFor.avatarInitials} size="lg" tone="cream" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-brown-dark">{requestFor.name}</p>
+                <p className="text-xs text-ink-secondary">
+                  {requestFor.role} · Next availability {requestFor.nextAvailable}
+                </p>
+              </div>
+            </div>
+
+            <Textarea
+              label="Anything you want to remember about this (optional)"
+              placeholder="Prefer an evening appointment."
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              maxLength={300}
+              hint="Kept privately in your own referral list. It is not sent to the practitioner."
+            />
+
+            <p className="rounded-2xl bg-muted px-4 py-3 text-xs leading-relaxed text-ink-secondary">
+              Soba does not share your journal, conversations, mood history, or any safety
+              classification with a practitioner. Availability shown is indicative and confirmed by
+              the practitioner, not by Soba.
+            </p>
+          </div>
+        ) : null}
+      </Modal>
 
       <Card tone="cream" padding="lg" className="mt-6">
         <h2 className="text-base font-semibold text-brown-dark">Crisis and urgent support</h2>
@@ -214,10 +338,8 @@ export default function ProfessionalSupport() {
             <Button
               data-autofocus
               onClick={() => {
+                setRequestFor(selected)
                 setSelected(null)
-                toast('Appointment request drafted', {
-                  description: 'You will confirm the time and details before anything is sent.',
-                })
               }}
             >
               Request appointment

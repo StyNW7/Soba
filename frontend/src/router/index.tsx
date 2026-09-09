@@ -27,6 +27,7 @@ const Toolkit = lazy(() => import('../pages/user/Toolkit'))
 const CircleOfTrust = lazy(() => import('../pages/user/CircleOfTrust'))
 const ProfessionalSupport = lazy(() => import('../pages/user/ProfessionalSupport'))
 const MySoba = lazy(() => import('../pages/user/MySoba'))
+const Personalization = lazy(() => import('../pages/user/Personalization'))
 const Privacy = lazy(() => import('../pages/user/Privacy'))
 const UserSettings = lazy(() => import('../pages/user/Settings'))
 
@@ -87,6 +88,7 @@ export function AppRouter() {
           <Route path="circle" element={<CircleOfTrust />} />
           <Route path="support" element={<ProfessionalSupport />} />
           <Route path="device" element={<MySoba />} />
+          <Route path="personalization" element={<Personalization />} />
           <Route path="privacy" element={<Privacy />} />
           <Route path="settings" element={<UserSettings />} />
         </Route>
