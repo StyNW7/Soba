@@ -25,11 +25,11 @@ export function Logo({ to = '/', className, variant = 'dark', showWordmark = tru
       )}
     >
       <svg viewBox="355 163 558 580" className="h-10 w-10 shrink-0" aria-hidden="true">
-        <image href="/images/brand/soba-logo.jpeg" width="1254" height="1254" />
+        <image href="/images/brand/soba-logo.png" width="1254" height="1254" />
       </svg>
       {showWordmark ? (
         <svg viewBox="300 750 663 235" className="h-7 w-20" aria-hidden="true">
-          <image href="/images/brand/soba-logo.jpeg" width="1254" height="1254" />
+          <image href="/images/brand/soba-logo.png" width="1254" height="1254" />
         </svg>
       ) : null}
     </span>
