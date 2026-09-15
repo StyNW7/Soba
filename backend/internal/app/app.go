@@ -67,6 +67,7 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg platform.Config) (*App, er
 	if ctx == nil {
 		return nil, errors.New("app: nil context")
 	}
+	cfg = cfg.WithVoiceDefaults()
 	if err := validateConfig(cfg); err != nil {
 		return nil, err
 	}
@@ -136,10 +137,47 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg platform.Config) (*App, er
 			return nil, err
 		}
 	}
-	model := safety.NewOpenAIResponses(safety.OpenAIConfig{APIKey: cfg.OpenAIKey, Model: cfg.TextModel})
+	if cfg.VoiceEnabled && !cfg.SupportsVoiceLocale(reviewed.Locale) {
+		release()
+		return nil, errors.New("app: content pack locale is unsupported by the speech provider")
+	}
+	var model safety.Model = safety.NewOpenAIResponses(safety.OpenAIConfig{APIKey: cfg.OpenAIKey, Model: cfg.TextModel})
+	if cfg.TextProvider == "gemini" {
+		model = safety.NewGemini(safety.GeminiConfig{APIKey: cfg.GeminiKey, Model: cfg.TextModel})
+	}
+	if cfg.TextProvider == "groq" {
+		model = safety.NewGroq(safety.GroqConfig{APIKey: cfg.GroqKey, Model: cfg.TextModel})
+	}
+	if cfg.TextProvider == "openrouter" {
+		model = safety.NewOpenRouter(safety.OpenRouterConfig{APIKey: cfg.OpenRouterKey, Model: cfg.TextModel})
+	}
 	pipeline := safety.NewPipeline(safety.PipelineConfig{Model: model, Reviewed: reviewed})
-	stt := speech.NewDeepgram(speech.DeepgramConfig{APIKey: cfg.DeepgramKey, Model: cfg.STTModel, Language: cfg.STTLanguage})
-	tts := speech.NewOpenAITTS(speech.OpenAITTSConfig{APIKey: cfg.OpenAIKey, Model: cfg.TTSModel})
+	var stt interface {
+		speech.Transcriber
+		Enabled() bool
+	} = speech.NewDeepgram(speech.DeepgramConfig{APIKey: cfg.DeepgramKey, Model: cfg.STTModel, Language: cfg.STTLanguage})
+	var tts interface {
+		speech.Synthesizer
+		Enabled() bool
+	} = speech.NewOpenAITTS(speech.OpenAITTSConfig{APIKey: cfg.OpenAIKey, Model: cfg.TTSModel})
+	if cfg.STTProvider == "assemblyai" {
+		stt = speech.NewAssemblyAI(speech.AssemblyAIConfig{APIKey: cfg.AssemblyAIKey, Model: cfg.STTModel})
+	}
+	if cfg.TTSProvider == "kokoro" {
+		tts = speech.NewKokoroTTS(speech.KokoroTTSConfig{Endpoint: cfg.KokoroURL})
+	}
+	if cfg.TTSProvider == "azure" {
+		tts = speech.NewAzureTTS(speech.AzureTTSConfig{APIKey: cfg.AzureSpeechKey, Region: cfg.AzureSpeechRegion})
+	}
+	if cfg.TTSProvider == "groq" {
+		tts = speech.NewGroqTTS(speech.GroqTTSConfig{APIKey: cfg.GroqKey, Model: cfg.TTSModel})
+	}
+	if cfg.TTSProvider == "browser" {
+		tts = speech.BrowserSpeech{}
+	}
+	if cfg.TTSProvider == "gemini" {
+		tts = speech.NewGeminiTTS(speech.GeminiTTSConfig{APIKey: cfg.GeminiKey, Model: cfg.TTSModel})
+	}
 	voiceEngine, err := conversation.NewVoiceEngine(voiceService, stt, tts, pipeline)
 	if err != nil {
 		release()
@@ -404,8 +442,8 @@ func validateConfig(cfg platform.Config) error {
 	if cfg.MaxSessions < 1 || cfg.MaxSessions > 100 {
 		return errors.New("app: MAX_ACTIVE_SESSIONS must be between 1 and 100")
 	}
-	if cfg.VoiceEnabled && (cfg.DeepgramKey == "" || cfg.OpenAIKey == "" || cfg.ContentPackPath == "") {
-		return errors.New("app: voice requires provider credentials and a reviewed content pack")
+	if err := cfg.ValidateVoice(); err != nil {
+		return err
 	}
 	if cfg.AlertsEnabled && cfg.FCMProject == "" {
 		return errors.New("app: alerts require FCM_PROJECT_ID")

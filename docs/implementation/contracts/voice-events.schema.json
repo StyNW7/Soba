@@ -90,6 +90,9 @@
             "private",
             "personal"
           ]
+        },
+        "browser_speech": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -355,6 +358,11 @@
             "cancelled",
             "failed"
           ]
+        },
+        "fallback_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
         }
       },
       "required": [

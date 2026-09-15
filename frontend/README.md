@@ -3,7 +3,7 @@
 The Soba web app: the public marketing site plus two authenticated dashboards — one for the
 person using Soba, one for a parent or guardian supporting them.
 
-**Status: scaffolded and running against mocked data.** No backend calls yet.
+**Status: connected to the Go API and PostgreSQL locally.** Private routes use server data and OIDC sessions. External providers still need deployment-specific verification.
 
 ## Stack
 
@@ -21,22 +21,10 @@ person using Soba, one for a parent or guardian supporting them.
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # http://localhost:5174
 npm run build    # type-check + production build
 npm run preview  # serve the production build
 ```
-
-## Demo accounts
-
-Authentication is mocked and persisted in `localStorage`. The login page has one-tap
-shortcuts, or sign in manually:
-
-| Role | Email | Password |
-| - | - | - |
-| User | `user@soba.demo` | any 6+ characters |
-| Guardian | `guardian@soba.demo` | any 6+ characters |
-
-Signing up with any other email creates a user-role account.
 
 ### Dashboard sidebar
 
@@ -46,64 +34,19 @@ device, and the content column widens from 1400px to 1560px so the extra room is
 rather than left as margin. Below `lg` the sidebar is a drawer, with bottom navigation and
 a "More" sheet.
 
-### Feature coverage against the docs
+## Backend integration
 
-Traced to the requirement IDs in [`../docs/Notion-Source-Notes.md`](../docs/Notion-Source-Notes.md):
-
-| ID | Feature | Where |
-| - | - | - |
-| C1–C3 | Voice conversation, adaptive response, personalization | `/app/user/soba`, `/app/user/personalization` |
-| C4 | Conversation memory, permission-gated | `/app/user/privacy`, memory-use toggle in Personalization |
-| C5 | Grounding support | `GroundingPlayer`, shared by Toolkit and Talk to Soba |
-| C6 | Safety detection | Mode detection in Talk to Soba |
-| C7 | Human connection | `ContactRequestModal` — select, preview, confirm, status |
-| U1 | My Soba: pairing, status, unpair | `/app/user/device`, `PairDeviceModal` |
-| U2, U4 | Mood dashboard and patterns | `/app/user`, `/app/user/mood` |
-| U3 | Journal from saved conversations | `/app/user/journal`, `SessionReview` |
-| U5 | Wellbeing toolkit | `/app/user/toolkit` |
-| U6 | Circle of Trust, guardian invite code | `/app/user/circle` |
-| U7 | Professional support and referrals | `/app/user/support` |
-| U8 | Personality, voice, interaction preference | `/app/user/personalization` |
-| U9 | Memory and privacy controls, export, delete | `/app/user/privacy` |
-| G1–G6 | Pulse, trends, alerts, reach out, coach, connections | `/app/guardian/*` |
-| F1 | Onboarding, profile, consent, pairing, guardian link | `/signup`, `/onboarding`, device and circle pages |
-| F3 | Normal / Support / Safety conversation modes | Mode strip in Talk to Soba |
-| F4 | Structured summary and per-item consent | `SessionReview` |
-
-### Conversation modes
-
-Talk to Soba implements all three modes from the flow document. **Normal** is everyday
-conversation. **Support** offers grounding before continuing. **Safety** stops offering to
-be the only support and routes to a person. The mode strip above the transcript shows
-which one is active, and the two demo chips trigger Support and Safety respectively.
-
-### End-of-conversation review
-
-Ending a session produces a structured summary — mood, topic, reflection, insights, safety
-level — with three independent choices that all start **off**: save to journal, save the
-mood entry, and select individual memory candidates. The draft carries a visible expiry
-countdown and is discarded rather than saved if it lapses. Turning everything off is the
-same as discarding.
-
-### Safety escalation demo
-
-On **Talk to Soba**, the "Demo: serious signal" chip (or typing a phrase like
-"I don't want to be here anymore") triggers the escalation architecture:
-
-1. Soba switches to Safety Mode and the UI shifts to muted terracotta.
-2. A safe, non-clinical response is shown alongside human-support actions.
-3. A guardian notification and an open safety alert are created.
-4. Signing in as the guardian shows the active alert on the overview and alerts pages.
-
-The demo never generates harmful content; it demonstrates the routing, not the risk.
+See [INTEGRATION.md](INTEGRATION.md) for configuration, API coverage, tests, and limits.
 
 ## Deploying to Vercel
+
+The current file only deploys the static frontend. It does not connect the API. Configure same-origin API routing before the SPA fallback, including a WebSocket-capable route for voice. See INTEGRATION.md.
 
 This is a monorepo, so the Vercel project must point at this directory.
 
 **Project settings → General → Root Directory: `frontend`**
 
-Everything else is handled by [`vercel.json`](vercel.json), which overrides whatever is set
+The static site configuration is handled by [`vercel.json`](vercel.json), which overrides whatever is set
 in the dashboard:
 
 | Setting | Value |
@@ -177,9 +120,7 @@ src/
 └── lib/             cn(), storage helpers, formatting
 ```
 
-State that a backend would eventually own lives behind `AppDataContext` and
-`AuthContext`. Swapping the mocked promise bodies for API calls should not require changes
-in the pages.
+Private routes use `pages/connected/`, `api/`, and `AuthContext`. `AppDataContext` is no longer mounted. Older demo pages remain in the source but are not used by the router.
 
 ## Design system
 
@@ -218,7 +159,7 @@ at 390px.
   Go backend, which is the single place safety checks and retention rules are enforced.
 - **No API keys in the browser.** `VITE_*` variables are compiled into the bundle and are
   public — treat every one of them as visible to the user.
-- The backend base URL comes from `VITE_API_URL`. See [`../.env.example`](../.env.example).
+- Browser requests use same-origin `/v1`. The local Vite proxy target comes from `SOBA_API_TARGET`. See [`.env.example`](.env.example).
 
 ## Tone
 

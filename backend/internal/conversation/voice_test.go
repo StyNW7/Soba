@@ -65,9 +65,25 @@ func (f fakeAI) Respond(context.Context, safety.ConversationRequest) (safety.Con
 func (fakeAI) Draft(context.Context, safety.DraftRequest) (safety.Draft, error) {
 	return safety.Draft{Mood: safety.MoodGood, Topic: "Hari ini", Reflection: "Hari yang baik", Insights: []string{}}, nil
 }
+
+type unavailableReplyTTS struct{}
+
+func (unavailableReplyTTS) Synthesize(ctx context.Context, r speech.TTSRequest, w io.Writer) error {
+	if r.Text == "Baik, aku mendengarkan." {
+		return speech.ErrBrowserSpeech
+	}
+	return (fakeTTS{}).Synthesize(ctx, r, w)
+}
 func TestVoiceFlowKeepsUnsavedContentTransient(t *testing.T) {
+	t.Run("server speech", func(t *testing.T) { testVoiceFlow(t, false) })
+	t.Run("browser speech", func(t *testing.T) { testVoiceFlow(t, true) })
+}
+func testVoiceFlow(t *testing.T, browserSpeech bool) {
 	p := testutil.Database(t)
 	owner := testutil.Owner(t, p)
+	if _, err := p.Exec(context.Background(), `UPDATE profiles SET processing_granted_at=NULL,processing_policy_version=NULL WHERE id=$1`, owner); err != nil {
+		t.Fatal(err)
+	}
 	cfg := testutil.Config()
 	cfg.VoiceEnabled = true
 	s := &Service{Pool: p, Config: cfg, Guards: &platform.Guards{}}
@@ -75,10 +91,14 @@ func TestVoiceFlowKeepsUnsavedContentTransient(t *testing.T) {
 	token := platform.Token()
 	s.tickets[string(platform.Hash(token))] = ticket{Owner: owner, Mode: "private", Expires: time.Now().Add(time.Minute)}
 	activityID := platform.ID()
-	if _, err := p.Exec(context.Background(), `INSERT INTO content_items(id,kind,title,locale,steps,review_status,reviewer_id,reviewed_at,review_expires_at) VALUES($1,'breathing','Test activity','id-ID','[{"text":"Test step","duration_seconds":60,"audio_url":null}]','approved','test',now(),now()+interval '1 hour')`, activityID); err != nil {
+	if _, err := p.Exec(context.Background(), `INSERT INTO content_items(id,kind,title,locale,steps,review_status,reviewer_id,reviewed_at,review_expires_at) VALUES($1,'breathing','Test activity','en-US','[{"text":"Test step","duration_seconds":60,"audio_url":null}]','approved','test',now(),now()+interval '1 hour')`, activityID); err != nil {
 		t.Fatal(err)
 	}
-	v, e := NewVoiceEngine(s, fakeSTT{}, fakeTTS{}, fakeAI{activityID: activityID})
+	var tts speech.Synthesizer = fakeTTS{}
+	if browserSpeech {
+		tts = unavailableReplyTTS{}
+	}
+	v, e := NewVoiceEngine(s, fakeSTT{}, tts, fakeAI{activityID: activityID})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -126,7 +146,7 @@ func TestVoiceFlowKeepsUnsavedContentTransient(t *testing.T) {
 			return m
 		}
 	}
-	send("session.start", map[string]any{"ticket": token, "sample_rate": 16000, "channels": 1, "encoding": "pcm_s16le", "mode": "private"})
+	send("session.start", map[string]any{"browser_speech": browserSpeech, "ticket": token, "sample_rate": 16000, "channels": 1, "encoding": "pcm_s16le", "mode": "private"})
 	ready := read()
 	if ready["type"] != "session.ready" {
 		t.Fatal(ready)
@@ -154,6 +174,9 @@ func TestVoiceFlowKeepsUnsavedContentTransient(t *testing.T) {
 		m := read()
 		if m["type"] == "response.end" {
 			responseID = m["response_id"].(string)
+			if browserSpeech && m["fallback_text"] != "Baik, aku mendengarkan." {
+				t.Fatal("approved browser speech missing", m)
+			}
 			if m["status"] != "complete" {
 				t.Fatal(m)
 			}

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ShieldCheck } from 'lucide-react'
+import { SobaBear } from '../components/ui/SobaBear'
 import { Logo } from '../components/ui/Brand'
 import { Waveform } from '../components/voice/VoiceOrb'
 
@@ -62,7 +63,10 @@ export function AuthLayout({
         <div className="mb-8 lg:hidden">
           <Logo to="/" />
         </div>
-        <div className="mx-auto w-full max-w-md flex-1 lg:flex-none">{children}</div>
+        <div className="mx-auto w-full max-w-md flex-1 lg:flex-none">
+          <SobaBear pose="wave" className="mx-auto mb-5 w-24" />
+          {children}
+        </div>
       </div>
     </div>
   )

@@ -1,0 +1,9 @@
+{
+  "Version": "english-pilot-draft-1",
+  "Locale": "en-US",
+  "Approved": false,
+  "ReviewExpires": "0001-01-01T00:00:00Z",
+  "GeneralText": "I could not prepare a reply to that. You can try again, take a pause, or reach someone in your Circle of Trust.",
+  "SeriousText": "I am an AI companion and cannot provide urgent help. If you are in immediate danger, contact local emergency services or someone nearby who can help. Would you like to reach a trusted person?",
+  "Activities": []
+}

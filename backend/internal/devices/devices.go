@@ -274,10 +274,11 @@ func (s *Service) heartbeat(ctx context.Context, r *platform.Request) (platform.
 		return platform.Result{}, e
 	}
 	var allowed bool
-	e = tx.QueryRow(ctx, `SELECT eligibility='allowed' AND NOT deleting AND processing_granted_at IS NOT NULL AND processing_revoked_at IS NULL AND processing_policy_version=$2 FROM profiles WHERE id=$1`, owner, s.Config.PolicyVersion).Scan(&allowed)
+	var locale string
+	e = tx.QueryRow(ctx, `SELECT eligibility='allowed' AND NOT deleting,locale FROM profiles WHERE id=$1`, owner).Scan(&allowed, &locale)
 	if e != nil {
 		return platform.Result{}, e
 	}
 	e = tx.Commit(ctx)
-	return platform.OK(map[string]any{"server_time": time.Now().UTC(), "preferences": pref, "voice_enabled": allowed && s.Config.VoiceEnabled, "firmware_manifest_url": nil}), e
+	return platform.OK(map[string]any{"server_time": time.Now().UTC(), "preferences": pref, "voice_enabled": allowed && s.Config.TTSProvider != "browser" && s.Config.VoiceEnabled && s.Config.SupportsVoiceLocale(locale), "firmware_manifest_url": nil}), e
 }

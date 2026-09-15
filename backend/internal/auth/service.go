@@ -34,7 +34,7 @@ const (
 	mobileCodeLifetime    = time.Minute
 
 	profileJSON = `jsonb_build_object('id',id,'display_name',display_name,'locale',locale,'timezone',timezone,'roles',roles,'eligibility',eligibility,'age_band',age_band,'deleting',deleting,'version',version,'shared_phone',shared_phone)`
-	prefsJSON   = `jsonb_build_object('personality',p.personality,'voice',p.voice,'listen_first',p.listen_first,'memory_enabled',p.memory_enabled,'version',p.version)`
+	prefsJSON   = `jsonb_build_object('personality',p.personality,'voice',p.voice,'listen_first',p.listen_first,'memory_enabled',p.memory_enabled,'mood_history_enabled',p.mood_history_enabled,'version',p.version)`
 )
 
 var e164Pattern = regexp.MustCompile(`^\+[1-9][0-9]{6,14}$`)
@@ -197,7 +197,7 @@ func validatePhone(v any) (*string, error) {
 }
 
 func validateLocale(locale string) error {
-	if locale != "id-ID" && locale != "en-US" {
+	if locale != "en-US" {
 		return platform.Invalid("Locale is invalid.")
 	}
 	return nil
@@ -810,18 +810,6 @@ func (s *Service) getPolicy(context.Context, *platform.Request) (platform.Result
 	if version == "" {
 		version = "pilot-v1"
 	}
-	sttModel := s.Config.STTModel
-	if sttModel == "" {
-		sttModel = "Nova-3"
-	}
-	textModel := s.Config.TextModel
-	if textModel == "" {
-		textModel = "gpt-4.1-mini"
-	}
-	ttsModel := s.Config.TTSModel
-	if ttsModel == "" {
-		ttsModel = "gpt-4o-mini-tts"
-	}
 	publishedAt := s.Config.PolicyPublishedAt
 	if publishedAt.IsZero() {
 		publishedAt = time.Date(2026, time.September, 7, 0, 0, 0, 0, time.UTC)
@@ -829,7 +817,7 @@ func (s *Service) getPolicy(context.Context, *platform.Request) (platform.Result
 	return platform.OK(map[string]any{
 		"version":                  version,
 		"speech_processing_text":   "SOBA processes voice input to provide transcription, safety checks, and an empathetic response. Processing uses the providers listed below. SOBA is not a medical device or emergency service.",
-		"providers":                []string{"Deepgram " + sttModel, "OpenAI " + textModel, "OpenAI " + ttsModel},
+		"providers":                s.Config.VoiceProviders(),
 		"minimum_age":              18,
 		"minor_enrollment_enabled": false,
 		"retention_days":           30,
@@ -1020,6 +1008,14 @@ func (s *Service) setPreferences(ctx context.Context, r *platform.Request) (plat
 	if err != nil {
 		return platform.Result{}, err
 	}
+	var moodHistory *bool
+	if _, ok := r.Body["mood_history_enabled"]; ok {
+		value, e := requestBool(r, "mood_history_enabled")
+		if e != nil {
+			return platform.Result{}, e
+		}
+		moodHistory = &value
+	}
 	version, err := requestVersion(r, "version")
 	if err != nil {
 		return platform.Result{}, err
@@ -1033,7 +1029,7 @@ func (s *Service) setPreferences(ctx context.Context, r *platform.Request) (plat
 	if deleting {
 		return platform.Result{}, policyBlocked()
 	}
-	value, err := platform.Row(ctx, r.Tx, `UPDATE preferences AS p SET personality=$2,voice=$3,listen_first=$4,memory_enabled=$5 WHERE p.owner_id=$1 AND p.version=$6 RETURNING `+prefsJSON, r.Owner(), personality, voice, listenFirst, memoryEnabled, version)
+	value, err := platform.Row(ctx, r.Tx, `UPDATE preferences AS p SET personality=$2,voice=$3,listen_first=$4,memory_enabled=$5,mood_history_enabled=COALESCE($7,p.mood_history_enabled) WHERE p.owner_id=$1 AND p.version=$6 RETURNING `+prefsJSON, r.Owner(), personality, voice, listenFirst, memoryEnabled, version, moodHistory)
 	if err != nil {
 		var exists bool
 		if checkErr := r.Tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM preferences WHERE owner_id=$1)`, r.Owner()).Scan(&exists); checkErr == nil && exists {

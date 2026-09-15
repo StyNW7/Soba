@@ -18,19 +18,29 @@ function LoadingScreen() {
 }
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isReady } = useAuth()
+  const { isAuthenticated, isReady, profile } = useAuth()
   const location = useLocation()
 
   if (!isReady) return <LoadingScreen />
-  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location.pathname }} replace />
+  if (!isAuthenticated)
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />
+  if (profile?.eligibility !== 'allowed')
+    return <Navigate to="/onboarding" replace />
   return <>{children}</>
 }
 
-export function RoleRoute({ role, children }: { role: Role; children: ReactNode }) {
-  const { user, isReady } = useAuth()
+export function RoleRoute({
+  role,
+  children,
+}: {
+  role: Role
+  children: ReactNode
+}) {
+  const { user, isReady, profile } = useAuth()
 
   if (!isReady) return <LoadingScreen />
   if (!user) return <Navigate to="/login" replace />
-  if (user.role !== role) return <Navigate to={homeRouteFor(user.role)} replace />
+  if (!profile?.roles.includes(role))
+    return <Navigate to={homeRouteFor(user.role)} replace />
   return <>{children}</>
 }

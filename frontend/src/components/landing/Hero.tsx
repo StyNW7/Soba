@@ -1,7 +1,8 @@
 import { ArrowRight, HeartHandshake, Mic, ShieldCheck, Users } from 'lucide-react'
 import { ButtonLink } from '../ui/Button'
 import { Reveal } from '../ui/Brand'
-import { CompanionMockup, PhoneMockup, StatusChip } from './Mockups'
+import { PhoneMockup, StatusChip } from './Mockups'
+import { SobaBear } from '../ui/SobaBear'
 
 export function Hero() {
   return (
@@ -92,7 +93,7 @@ export function Hero() {
                 aria-hidden="true"
                 className="absolute inset-x-6 bottom-2 top-10 rounded-[46%_46%_38%_38%/40%_40%_22%_22%] bg-gradient-to-b from-white/50 to-transparent blur-2xl"
               />
-              <CompanionMockup className="relative translate-x-2 sm:translate-x-6" />
+              <SobaBear pose="welcome" className="relative w-full max-w-[460px]" />
               <PhoneMockup className="absolute -bottom-10 -left-2 hidden scale-[0.86] sm:block lg:-left-12 lg:scale-95" />
               <StatusChip
                 icon={Mic}

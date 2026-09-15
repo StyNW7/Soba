@@ -31,7 +31,8 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	c := Config{Env: env("APP_ENV", "development"), Addr: env("HTTP_ADDR", "127.0.0.1:8080"), PublicURL: env("PUBLIC_BASE_URL", "http://localhost:8080"), DatabaseURL: os.Getenv("DATABASE_URL"), PolicyVersion: env("POLICY_VERSION", "pilot-v1"), PolicyPublishedAt: policyPublishedAt, KeyVersion: env("DATA_KEY_VERSION", "1"), Origins: strings.Split(env("ALLOWED_WEB_ORIGINS", "http://localhost:5173"), ","), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCClientID: os.Getenv("OIDC_CLIENT_ID"), OIDCClientSecret: os.Getenv("OIDC_CLIENT_SECRET"), OIDCRedirectURI: os.Getenv("OIDC_REDIRECT_URI"), MobileReturnURI: os.Getenv("MOBILE_RETURN_URI"), VoiceEnabled: voiceEnabled, AlertsEnabled: alertsEnabled, DeepgramKey: os.Getenv("DEEPGRAM_API_KEY"), OpenAIKey: os.Getenv("OPENAI_API_KEY"), STTModel: env("STT_MODEL", "nova-3"), STTLanguage: env("STT_LANGUAGE", "id"), TextModel: env("TEXT_MODEL", "gpt-4.1-mini"), TTSModel: env("TTS_MODEL", "gpt-4o-mini-tts"), FCMProject: os.Getenv("FCM_PROJECT_ID"), ContentPackPath: os.Getenv("CONTENT_PACK_PATH"), ObjectDirectory: env("OBJECT_DIRECTORY", "./private-data"), MaxSessions: 10, ProviderDeletionRequired: providerDeletionRequired}
+	c := Config{KokoroURL: os.Getenv("KOKORO_TTS_URL"), AzureSpeechKey: os.Getenv("AZURE_SPEECH_KEY"), AzureSpeechRegion: os.Getenv("AZURE_SPEECH_REGION"), STTProvider: env("STT_PROVIDER", "deepgram"), TextProvider: env("TEXT_PROVIDER", "openai"), TTSProvider: env("TTS_PROVIDER", "openai"), AssemblyAIKey: os.Getenv("ASSEMBLYAI_API_KEY"), GeminiKey: os.Getenv("GEMINI_API_KEY"), OpenRouterKey: os.Getenv("OPENROUTER_API_KEY"), GroqKey: os.Getenv("GROQ_API_KEY"), Env: env("APP_ENV", "development"), Addr: env("HTTP_ADDR", "127.0.0.1:8080"), PublicURL: env("PUBLIC_BASE_URL", "http://localhost:8080"), DatabaseURL: os.Getenv("DATABASE_URL"), PolicyVersion: env("POLICY_VERSION", "pilot-v1"), PolicyPublishedAt: policyPublishedAt, KeyVersion: env("DATA_KEY_VERSION", "1"), Origins: strings.Split(env("ALLOWED_WEB_ORIGINS", "http://localhost:5173"), ","), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCClientID: os.Getenv("OIDC_CLIENT_ID"), OIDCClientSecret: os.Getenv("OIDC_CLIENT_SECRET"), OIDCRedirectURI: os.Getenv("OIDC_REDIRECT_URI"), MobileReturnURI: os.Getenv("MOBILE_RETURN_URI"), VoiceEnabled: voiceEnabled, AlertsEnabled: alertsEnabled, DeepgramKey: os.Getenv("DEEPGRAM_API_KEY"), OpenAIKey: os.Getenv("OPENAI_API_KEY"), STTModel: os.Getenv("STT_MODEL"), STTLanguage: os.Getenv("STT_LANGUAGE"), TextModel: os.Getenv("TEXT_MODEL"), TTSModel: os.Getenv("TTS_MODEL"), FCMProject: os.Getenv("FCM_PROJECT_ID"), ContentPackPath: os.Getenv("CONTENT_PACK_PATH"), ObjectDirectory: env("OBJECT_DIRECTORY", "./private-data"), MaxSessions: 10, ProviderDeletionRequired: providerDeletionRequired}
+	c = c.WithVoiceDefaults()
 	for _, v := range []struct {
 		name string
 		dst  *[]byte
@@ -80,8 +81,8 @@ func LoadConfig() (Config, error) {
 			return c, fmt.Errorf("OIDC_CLIENT_ID is required outside development")
 		}
 	}
-	if c.VoiceEnabled && (c.DeepgramKey == "" || c.OpenAIKey == "" || c.ContentPackPath == "") {
-		return c, fmt.Errorf("voice requires provider credentials and a reviewed content pack")
+	if err := c.ValidateVoice(); err != nil {
+		return c, err
 	}
 	if c.AlertsEnabled && c.FCMProject == "" {
 		return c, fmt.Errorf("alerts require FCM_PROJECT_ID")

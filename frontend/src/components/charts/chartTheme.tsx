@@ -95,7 +95,7 @@ interface ChartCardProps {
   footer?: ReactNode
   children: ReactNode
   className?: string
-  height?: number
+  height?: number | 'auto'
 }
 
 export function ChartCard({

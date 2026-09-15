@@ -1,5 +1,6 @@
+import { useAuth, homeRouteFor } from '../context/AuthContext'
 import { Suspense, lazy } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { PublicLayout } from '../layouts/PublicLayout'
 import { UserDashboardLayout } from '../layouts/UserDashboardLayout'
 import { GuardianDashboardLayout } from '../layouts/GuardianDashboardLayout'
@@ -20,29 +21,72 @@ const SignUp = lazy(() => import('../pages/auth/SignUp'))
 const Onboarding = lazy(() => import('../pages/auth/Onboarding'))
 
 const UserOverview = lazy(() => import('../pages/user/Overview'))
-const TalkToSoba = lazy(() => import('../pages/user/TalkToSoba'))
-const MoodPatterns = lazy(() => import('../pages/user/MoodPatterns'))
-const Journal = lazy(() => import('../pages/user/Journal'))
-const Toolkit = lazy(() => import('../pages/user/Toolkit'))
-const CircleOfTrust = lazy(() => import('../pages/user/CircleOfTrust'))
-const ProfessionalSupport = lazy(() => import('../pages/user/ProfessionalSupport'))
-const MySoba = lazy(() => import('../pages/user/MySoba'))
-const Personalization = lazy(() => import('../pages/user/Personalization'))
-const Privacy = lazy(() => import('../pages/user/Privacy'))
-const UserSettings = lazy(() => import('../pages/user/Settings'))
-
-const GuardianOverview = lazy(() => import('../pages/guardian/Overview'))
-const WellbeingPulse = lazy(() => import('../pages/guardian/WellbeingPulse'))
-const MoodTrends = lazy(() => import('../pages/guardian/MoodTrends'))
-const SafetyAlerts = lazy(() => import('../pages/guardian/SafetyAlerts'))
-const ReachOut = lazy(() => import('../pages/guardian/ReachOut'))
-const ParentCoach = lazy(() => import('../pages/guardian/ParentCoach'))
-const SafetyConnection = lazy(() => import('../pages/guardian/SafetyConnection'))
-const GuardianSettings = lazy(() => import('../pages/guardian/Settings'))
+const MoodPatterns = lazy(() =>
+  import('../pages/connected/Wellbeing').then((m) => ({ default: m.MoodPage })),
+)
+const Journal = lazy(() =>
+  import('../pages/connected/Wellbeing').then((m) => ({
+    default: m.JournalPage,
+  })),
+)
+const Personalization = lazy(() =>
+  import('../pages/connected/Wellbeing').then((m) => ({
+    default: m.PersonalizationPage,
+  })),
+)
+const Toolkit = lazy(() =>
+  import('../pages/connected/Wellbeing').then((m) => ({
+    default: m.ContentPage,
+  })),
+)
+const TalkToSoba = lazy(() =>
+  import('../pages/connected/Conversation').then((m) => ({
+    default: m.ConversationPage,
+  })),
+)
+const CircleOfTrust = lazy(() =>
+  import('../pages/connected/Connections').then((m) => ({
+    default: m.CirclePage,
+  })),
+)
+const ProfessionalSupport = lazy(() =>
+  import('../pages/connected/Connections').then((m) => ({
+    default: m.SupportPage,
+  })),
+)
+const SafetyAlerts = lazy(() =>
+  import('../pages/connected/Connections').then((m) => ({
+    default: m.AlertsPage,
+  })),
+)
+const MySoba = lazy(() =>
+  import('../pages/connected/Devices').then((m) => ({
+    default: m.DevicesPage,
+  })),
+)
+const Privacy = lazy(() =>
+  import('../pages/connected/Account').then((m) => ({
+    default: m.PrivacyPage,
+  })),
+)
+const UserSettings = lazy(() =>
+  import('../pages/connected/Account').then((m) => ({
+    default: m.SettingsPage,
+  })),
+)
+const GuardianOverview = lazy(() =>
+  import('../pages/connected/Guardian').then((m) => ({
+    default: m.GuardianPage,
+  })),
+)
 
 function RouteFallback() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center" role="status" aria-live="polite">
+    <div
+      className="flex min-h-[50vh] items-center justify-center"
+      role="status"
+      aria-live="polite"
+    >
       <span
         className="h-7 w-7 animate-spin rounded-full border-2 border-apricot border-t-transparent"
         aria-hidden="true"
@@ -66,6 +110,12 @@ export function AppRouter() {
           <Route path="*" element={<NotFound />} />
         </Route>
 
+        <Route path="/app" element={<AccountHome />} />
+        <Route
+          path="/guardian"
+          element={<Navigate to="/app/guardian" replace />}
+        />
+        <Route path="/auth/complete" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/onboarding" element={<Onboarding />} />
@@ -104,15 +154,32 @@ export function AppRouter() {
           }
         >
           <Route index element={<GuardianOverview />} />
-          <Route path="wellbeing" element={<WellbeingPulse />} />
-          <Route path="trends" element={<MoodTrends />} />
+          <Route path="wellbeing" element={<GuardianOverview />} />
+          <Route path="trends" element={<GuardianOverview />} />
           <Route path="alerts" element={<SafetyAlerts />} />
-          <Route path="reach-out" element={<ReachOut />} />
-          <Route path="coach" element={<ParentCoach />} />
-          <Route path="safety" element={<SafetyConnection />} />
-          <Route path="settings" element={<GuardianSettings />} />
+          <Route path="reach-out" element={<SafetyAlerts />} />
+          <Route path="coach" element={<Toolkit coach />} />
+          <Route path="safety" element={<GuardianOverview />} />
+          <Route path="settings" element={<UserSettings />} />
         </Route>
       </Routes>
     </Suspense>
+  )
+}
+
+function AccountHome() {
+  const { user, isReady, profile } = useAuth()
+  if (!isReady) return <RouteFallback />
+  return (
+    <Navigate
+      to={
+        !user
+          ? '/login'
+          : profile?.eligibility !== 'allowed'
+            ? '/onboarding'
+            : homeRouteFor(user.role)
+      }
+      replace
+    />
   )
 }

@@ -1,3 +1,4 @@
+import { SobaBear } from '../ui/SobaBear'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
@@ -195,7 +196,10 @@ export function Footer() {
       <div className="container-soba py-14 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_2fr]">
           <div className="max-w-sm">
-            <Logo to="" />
+            <div className="flex items-center gap-4">
+              <Logo to="" />
+              <SobaBear pose="walking" className="w-14" />
+            </div>
             <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
               A voice-first emotional companion that listens without judgment, supports everyday
               wellbeing, and helps you reach the people who matter.

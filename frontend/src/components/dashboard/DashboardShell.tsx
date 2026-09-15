@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import {
   ChevronRight,
   LogOut,
@@ -31,7 +37,13 @@ interface DashboardShellProps {
   footerNote: string
 }
 
-export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: DashboardShellProps) {
+export function DashboardShell({
+  nav,
+  mobileNav,
+  role,
+  roleLabel,
+  footerNote,
+}: DashboardShellProps) {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,6 +51,7 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
   const [collapsed, setCollapsed] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [logoutError, setLogoutError] = useState('')
 
   useEffect(() => {
     setCollapsed(readStorage<boolean>(COLLAPSE_KEY, false))
@@ -70,12 +83,20 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
   }, [location.pathname])
 
   const current = nav.find((item) =>
-    item.end ? location.pathname === item.to : location.pathname.startsWith(item.to),
+    item.end
+      ? location.pathname === item.to
+      : location.pathname.startsWith(item.to),
   )
 
-  function handleSignOut() {
-    signOut()
-    navigate('/login', { replace: true })
+  async function handleSignOut() {
+    try {
+      await signOut()
+      navigate('/login', { replace: true })
+    } catch (e) {
+      setLogoutError(
+        e instanceof Error ? e.message : 'Sign-out failed. Please try again.',
+      )
+    }
   }
 
   /** `railMode` renders the icon-only sidebar; the drawer always shows labels. */
@@ -112,7 +133,10 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
 
       <nav
         aria-label="Dashboard"
-        className={cn('flex-1 overflow-y-auto overflow-x-hidden pb-4', railMode ? 'px-2' : 'px-3')}
+        className={cn(
+          'flex-1 overflow-y-auto overflow-x-hidden pb-4',
+          railMode ? 'px-2' : 'px-3',
+        )}
       >
         <ul className="space-y-1">
           {nav.map((item) => (
@@ -125,7 +149,9 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 className={({ isActive }) =>
                   cn(
                     'group relative flex items-center rounded-2xl text-sm font-medium transition-all duration-200 ease-soba',
-                    railMode ? 'h-11 w-full justify-center' : 'gap-3 px-3.5 py-2.5',
+                    railMode
+                      ? 'h-11 w-full justify-center'
+                      : 'gap-3 px-3.5 py-2.5',
                     isActive
                       ? 'bg-gradient-to-r from-apricot-100 to-apricot-50 text-brown-dark shadow-[inset_0_0_0_1px_rgba(212,149,77,0.22)]'
                       : 'text-ink-secondary hover:bg-cream/70 hover:text-brown-dark',
@@ -154,7 +180,9 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                     <item.icon
                       className={cn(
                         'h-[18px] w-[18px] shrink-0 transition-colors duration-200',
-                        isActive ? 'text-apricot-700' : 'text-brown-soft group-hover:text-brown',
+                        isActive
+                          ? 'text-apricot-700'
+                          : 'text-brown-soft group-hover:text-brown',
                       )}
                       aria-hidden="true"
                     />
@@ -173,15 +201,26 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
         </ul>
       </nav>
 
-      <div className={cn('shrink-0 border-t border-line', railMode ? 'p-2' : 'p-4')}>
+      <div
+        className={cn(
+          'shrink-0 border-t border-line',
+          railMode ? 'p-2' : 'p-4',
+        )}
+      >
         {railMode ? (
           <div className="flex justify-center py-2" title={footerNote}>
-            <ShieldCheck className="h-4 w-4 text-sage" aria-label={footerNote} />
+            <ShieldCheck
+              className="h-4 w-4 text-sage"
+              aria-label={footerNote}
+            />
           </div>
         ) : (
           <div className="rounded-2xl bg-cream/70 p-4">
             <p className="flex items-start gap-2 text-xs leading-relaxed text-brown">
-              <ShieldCheck className="mt-px h-3.5 w-3.5 shrink-0 text-sage" aria-hidden="true" />
+              <ShieldCheck
+                className="mt-px h-3.5 w-3.5 shrink-0 text-sage"
+                aria-hidden="true"
+              />
               {footerNote}
             </p>
           </div>
@@ -273,9 +312,15 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-brown transition hover:bg-cream lg:flex"
               >
                 {collapsed ? (
-                  <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden="true" />
+                  <PanelLeftOpen
+                    className="h-[18px] w-[18px]"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />
+                  <PanelLeftClose
+                    className="h-[18px] w-[18px]"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
 
@@ -292,7 +337,10 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
             </div>
 
             <div className="flex shrink-0 items-center gap-2.5">
-              <NotificationBell audience={role} onClick={() => setNotificationsOpen(true)} />
+              <NotificationBell
+                audience={role}
+                onClick={() => setNotificationsOpen(true)}
+              />
               <Dropdown
                 label="Account menu"
                 trigger={
@@ -305,13 +353,21 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                 }
               >
                 <div className="border-b border-line px-3 py-2.5">
-                  <p className="text-sm font-semibold text-brown-dark">{user?.name}</p>
-                  <p className="truncate text-xs text-ink-muted">{user?.email}</p>
+                  <p className="text-sm font-semibold text-brown-dark">
+                    {user?.name}
+                  </p>
+                  <p className="truncate text-xs text-ink-muted">
+                    {user?.email}
+                  </p>
                 </div>
                 <div className="pt-1.5">
                   <DropdownItem
                     onClick={() =>
-                      navigate(role === 'guardian' ? '/app/guardian/settings' : '/app/user/settings')
+                      navigate(
+                        role === 'guardian'
+                          ? '/app/guardian/settings'
+                          : '/app/user/settings',
+                      )
                     }
                   >
                     <Settings className="h-4 w-4" aria-hidden="true" />
@@ -399,9 +455,14 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
             aria-label="More destinations"
             className="absolute inset-x-0 bottom-0 max-h-[76vh] overflow-y-auto rounded-t-3xl bg-surface p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-lift animate-scale-in"
           >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line" aria-hidden="true" />
+            <div
+              className="mx-auto mb-4 h-1 w-10 rounded-full bg-line"
+              aria-hidden="true"
+            />
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-brown-dark">All destinations</h2>
+              <h2 className="text-base font-semibold text-brown-dark">
+                All destinations
+              </h2>
               <button
                 type="button"
                 onClick={() => setMoreOpen(false)}
@@ -418,7 +479,10 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
                     to={item.to}
                     className="flex h-full flex-col gap-2 rounded-2xl border border-line bg-cream/40 p-4 text-sm font-medium text-brown-dark"
                   >
-                    <item.icon className="h-5 w-5 text-brown-soft" aria-hidden="true" />
+                    <item.icon
+                      className="h-5 w-5 text-brown-soft"
+                      aria-hidden="true"
+                    />
                     {item.label}
                   </Link>
                 </li>
@@ -428,6 +492,14 @@ export function DashboardShell({ nav, mobileNav, role, roleLabel, footerNote }: 
         </div>
       ) : null}
 
+      {logoutError && (
+        <div
+          role="alert"
+          className="fixed bottom-20 left-4 right-4 z-50 rounded-xl bg-surface p-4 text-terracotta-dark"
+        >
+          {logoutError}
+        </div>
+      )}
       <NotificationCenter
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}

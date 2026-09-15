@@ -19,17 +19,19 @@ import (
 )
 
 type Config struct {
-	Env, Addr, PublicURL, DatabaseURL, PolicyVersion                             string
-	Origins                                                                      []string
-	OIDCIssuer, OIDCClientID, OIDCClientSecret, OIDCRedirectURI, MobileReturnURI string
-	DataKey, CursorKey, AuditKey                                                 []byte
-	PolicyPublishedAt                                                            time.Time
-	KeyVersion                                                                   string
-	VoiceEnabled, AlertsEnabled                                                  bool
-	DeepgramKey, OpenAIKey, STTModel, STTLanguage, TextModel, TTSModel           string
-	FCMProject, ContentPackPath, ObjectDirectory                                 string
-	MaxSessions                                                                  int
-	ProviderDeletionRequired                                                     bool
+	KokoroURL, AzureSpeechKey, AzureSpeechRegion                                             string
+	STTProvider, TextProvider, TTSProvider, AssemblyAIKey, GeminiKey, OpenRouterKey, GroqKey string
+	Env, Addr, PublicURL, DatabaseURL, PolicyVersion                                         string
+	Origins                                                                                  []string
+	OIDCIssuer, OIDCClientID, OIDCClientSecret, OIDCRedirectURI, MobileReturnURI             string
+	DataKey, CursorKey, AuditKey                                                             []byte
+	PolicyPublishedAt                                                                        time.Time
+	KeyVersion                                                                               string
+	VoiceEnabled, AlertsEnabled                                                              bool
+	DeepgramKey, OpenAIKey, STTModel, STTLanguage, TextModel, TTSModel                       string
+	FCMProject, ContentPackPath, ObjectDirectory                                             string
+	MaxSessions                                                                              int
+	ProviderDeletionRequired                                                                 bool
 }
 
 type Principal struct {

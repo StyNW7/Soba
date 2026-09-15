@@ -137,12 +137,16 @@ func (s *Service) issueTicket(ctx context.Context, r *platform.Request) (platfor
 		return platform.Result{}, platform.Unavailable()
 	}
 	var permitted bool
-	e := r.Tx.QueryRow(ctx, `SELECT eligibility='allowed' AND NOT deleting AND processing_granted_at IS NOT NULL AND processing_revoked_at IS NULL AND processing_policy_version=$2 FROM profiles WHERE id=$1`, r.Owner(), s.Config.PolicyVersion).Scan(&permitted)
+	var locale string
+	e := r.Tx.QueryRow(ctx, `SELECT eligibility='allowed' AND NOT deleting,locale FROM profiles WHERE id=$1`, r.Owner()).Scan(&permitted, &locale)
 	if e != nil {
 		return platform.Result{}, e
 	}
 	if !permitted {
-		return platform.Result{}, platform.Fail(403, "policy_blocked", "Voice processing permission is required.")
+		return platform.Result{}, platform.Fail(403, "policy_blocked", "This account cannot start voice.")
+	}
+	if !s.Config.SupportsVoiceLocale(locale) {
+		return platform.Result{}, platform.Fail(403, "policy_blocked", "This voice provider supports English only. Set your profile language to English before starting voice.")
 	}
 	device := r.String("device_id")
 	if device != "" {
@@ -230,7 +234,7 @@ func (s *Service) save(ctx context.Context, r *platform.Request) (platform.Resul
 	var generation, current int64
 	var timezone string
 	var consent bool
-	e := r.Tx.QueryRow(ctx, `SELECT history_generation,timezone,processing_granted_at IS NOT NULL AND processing_revoked_at IS NULL AND processing_policy_version=$2 FROM profiles WHERE id=$1`, r.Owner(), s.Config.PolicyVersion).Scan(&current, &timezone, &consent)
+	e := r.Tx.QueryRow(ctx, `SELECT history_generation,timezone,eligibility='allowed' AND NOT deleting FROM profiles WHERE id=$1`, r.Owner()).Scan(&current, &timezone, &consent)
 	if e != nil {
 		return platform.Result{}, e
 	}

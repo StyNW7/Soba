@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
+import { SobaBear, type BearPose } from './SobaBear'
 import type { LucideIcon } from 'lucide-react'
 import { Info, ShieldCheck, TriangleAlert } from 'lucide-react'
 import { cn } from '../../lib/cn'
@@ -10,9 +12,17 @@ interface EmptyStateProps {
   description: string
   action?: ReactNode
   className?: string
+  bear?: BearPose
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+  bear,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
@@ -25,11 +35,19 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background blur-2xl"
       />
-      <span className="relative flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-cream to-cream-deep text-brown shadow-inset">
-        <Icon className="h-7 w-7" aria-hidden="true" />
-      </span>
-      <h3 className="relative mt-5 text-base font-semibold text-brown-dark">{title}</h3>
-      <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-ink-secondary">{description}</p>
+      {bear ? (
+        <SobaBear pose={bear} className="relative w-24" />
+      ) : (
+        <span className="relative flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-cream to-cream-deep text-brown shadow-inset">
+          <Icon className="h-7 w-7" aria-hidden="true" />
+        </span>
+      )}
+      <h3 className="relative mt-5 text-base font-semibold text-brown-dark">
+        {title}
+      </h3>
+      <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-ink-secondary">
+        {description}
+      </p>
       {action ? <div className="relative mt-6">{action}</div> : null}
     </div>
   )
@@ -182,20 +200,52 @@ interface PageHeaderProps {
   eyebrow?: string
 }
 
-export function PageHeader({ title, description, action, eyebrow }: PageHeaderProps) {
+const pageBears: Record<string, BearPose> = {
+  '/app/user': 'wave',
+  '/app/user/soba': 'threeQuarter',
+  '/app/user/mood': 'neutral',
+  '/app/user/journal': 'reading',
+  '/app/user/toolkit': 'sleeping',
+  '/app/user/circle': 'love',
+  '/app/user/support': 'love',
+  '/app/user/device': 'front',
+  '/app/user/personalization': 'wink',
+  '/app/user/privacy': 'back',
+  '/app/user/settings': 'working',
+  '/app/guardian': 'love',
+  '/app/guardian/wellbeing': 'side',
+  '/app/guardian/trends': 'thinking',
+  '/app/guardian/coach': 'reading',
+  '/app/guardian/settings': 'working',
+}
+
+export function PageHeader({
+  title,
+  description,
+  action,
+  eyebrow,
+}: PageHeaderProps) {
+  const { pathname } = useLocation()
+  const pose = pageBears[pathname]
   return (
     <header className="relative mb-8 flex flex-col gap-5 pb-6 sm:flex-row sm:items-end sm:justify-between">
-      <span className="divider-fade absolute inset-x-0 bottom-0" aria-hidden="true" />
-      <div className="min-w-0">
-        {eyebrow ? <p className="eyebrow mb-2.5">{eyebrow}</p> : null}
-        <h1 className="text-[30px] font-semibold leading-[1.12] tracking-headline text-brown-dark sm:text-[36px]">
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-secondary sm:text-base">
-            {description}
-          </p>
-        ) : null}
+      <span
+        className="divider-fade absolute inset-x-0 bottom-0"
+        aria-hidden="true"
+      />
+      <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+        {pose && <SobaBear pose={pose} className="w-14 sm:w-20" />}
+        <div className="min-w-0">
+          {eyebrow ? <p className="eyebrow mb-2.5">{eyebrow}</p> : null}
+          <h1 className="text-[30px] font-semibold leading-[1.12] tracking-headline text-brown-dark sm:text-[36px]">
+            {title}
+          </h1>
+          {description ? (
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-secondary sm:text-base">
+              {description}
+            </p>
+          ) : null}
+        </div>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>

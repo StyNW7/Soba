@@ -8144,6 +8144,7 @@ components:
           - cedar
         listen_first: *id012
         memory_enabled: *id012
+        mood_history_enabled: *id012
         version: *id010
       required:
       - personality

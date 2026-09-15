@@ -109,6 +109,11 @@ type Message struct {
 	Text string
 }
 
+type MoodCheckIn struct {
+	Label      string `json:"label"`
+	OccurredAt string `json:"occurred_at"`
+}
+
 type Memory struct {
 	Text string
 }
@@ -116,13 +121,14 @@ type Memory struct {
 // ConversationRequest contains the transient input needed to produce one
 // spoken reply. Recent is bounded by the pipeline before it reaches a model.
 type ConversationRequest struct {
-	Locale      string
-	Transcript  string
-	Recent      []Message
-	Personality string
-	ListenFirst bool
-	Policy      string
-	Memories    []Memory
+	Locale       string
+	Transcript   string
+	Recent       []Message
+	Personality  string
+	ListenFirst  bool
+	Policy       string
+	MoodCheckIns []MoodCheckIn
+	Memories     []Memory
 }
 
 type DraftRequest struct {
@@ -138,14 +144,15 @@ type AssessmentRequest struct {
 }
 
 type ReplyRequest struct {
-	Locale      string
-	Transcript  string
-	Recent      []Message
-	Personality string
-	ListenFirst bool
-	Policy      string
-	Memories    []Memory
-	Assessment  Assessment
+	Locale       string
+	Transcript   string
+	Recent       []Message
+	Personality  string
+	ListenFirst  bool
+	Policy       string
+	MoodCheckIns []MoodCheckIn
+	Memories     []Memory
+	Assessment   Assessment
 }
 
 type ReplyCheckRequest struct {

@@ -1,151 +1,136 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react'
 import type { ReactNode } from 'react'
+import { api, ApiError, resetSession } from '../api/client'
+import type { Profile, ProfileUpdate } from '../api/schema'
 import type { Role, User } from '../types'
-import { demoGuardian, demoUser } from '../data/mockUser'
-import { clearStorage, readStorage, writeStorage } from '../lib/storage'
+import { clearStorage } from '../lib/storage'
 import { initials } from '../lib/format'
 
-const STORAGE_KEY = 'soba.auth.user'
-
-export interface SignUpPayload {
-  name: string
-  email: string
-  password: string
-  role: Role
-  preferredName?: string
-  ageRange?: string
-  interactionPreference?: User['interactionPreference']
-  relationship?: string
-  subjectName?: string
-}
-
 interface AuthContextValue {
+  profile: Profile | null
   user: User | null
   isAuthenticated: boolean
   isReady: boolean
-  signIn: (email: string, password: string) => Promise<User>
-  signInAs: (role: Role) => Promise<User>
-  signUp: (payload: SignUpPayload) => Promise<User>
-  updateUser: (patch: Partial<User>) => void
-  signOut: () => void
+  error: string
+  refresh: () => Promise<void>
+  startLogin: () => Promise<void>
+  saveProfile: (value: ProfileUpdate) => Promise<void>
+  updateUser: (patch: Partial<User>) => Promise<void>
+  signOut: () => Promise<void>
 }
-
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-/**
- * Mock authentication. Everything here is local-only; a real API client can
- * replace the promise bodies without touching consumers.
- */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [isReady, setIsReady] = useState(false)
-
+  const [error, setError] = useState('')
+  const generation = useRef(0)
+  const refresh = useCallback(async () => {
+    const current = ++generation.current
+    try {
+      const next = await api<Profile>('/v1/me')
+      if (current === generation.current) {
+        setProfile(next)
+        setError('')
+      }
+    } catch (err) {
+      if (current !== generation.current) return
+      setProfile(null)
+      if (!(err instanceof ApiError && err.status === 401))
+        setError(err instanceof Error ? err.message : 'Cannot connect to SOBA.')
+    } finally {
+      if (current === generation.current) setIsReady(true)
+    }
+  }, [])
   useEffect(() => {
-    setUser(readStorage<User | null>(STORAGE_KEY, null))
-    setIsReady(true)
-  }, [])
+    for (const key of [
+      'soba.auth.user',
+      'soba.appdata.v2',
+      'soba.signup.draft',
+    ])
+      clearStorage(key)
+    void refresh()
+    const clear = () => {
+      generation.current++
+      setProfile(null)
+      setIsReady(true)
+    }
+    window.addEventListener('soba:unauthenticated', clear)
+    return () => window.removeEventListener('soba:unauthenticated', clear)
+  }, [refresh])
 
-  const persist = useCallback((next: User | null) => {
-    setUser(next)
-    if (next) writeStorage(STORAGE_KEY, next)
-    else clearStorage(STORAGE_KEY)
-  }, [])
-
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 550))
-      const normalized = email.trim().toLowerCase()
-      if (!normalized.includes('@')) throw new Error('Please enter a valid email address.')
-      if (password.length < 6) throw new Error('Your password should be at least 6 characters.')
-
-      const account =
-        normalized === demoGuardian.email ? demoGuardian : normalized === demoUser.email ? demoUser : null
-
-      const next: User = account ?? {
-        ...demoUser,
-        id: `usr_${normalized.split('@')[0]}`,
-        email: normalized,
-        name: normalized.split('@')[0],
-        preferredName: normalized.split('@')[0],
-        avatarInitials: initials(normalized.split('@')[0]) || 'S',
+  const startLogin = async () => {
+    resetSession()
+    const result = await api<{ authorization_url: string }>('/v1/auth/start', {
+      method: 'POST',
+      public: true,
+      body: { client: 'web', return_path: '/app' },
+    })
+    window.location.assign(result.authorization_url)
+  }
+  const saveProfile = async (body: ProfileUpdate) => {
+    setProfile(await api<Profile>('/v1/me', { method: 'PATCH', body }))
+  }
+  const updateUser = async (patch: Partial<User>) => {
+    if (!profile) throw new Error('Please sign in.')
+    await saveProfile({
+      display_name: patch.preferredName ?? patch.name ?? profile.display_name,
+      locale: profile.locale,
+      timezone: profile.timezone,
+      roles: profile.roles,
+      age_band: profile.age_band,
+      shared_phone: profile.shared_phone,
+      version: profile.version,
+    })
+  }
+  const signOut = async () => {
+    await api('/v1/auth/logout', { method: 'POST' })
+    resetSession()
+    setProfile(null)
+  }
+  const user: User | null = profile
+    ? {
+        id: profile.id,
+        name: profile.display_name,
+        preferredName: profile.display_name,
+        email: '',
+        role: profile.roles.includes('user') ? 'user' : 'guardian',
+        avatarInitials: initials(profile.display_name),
+        joinedAt: '',
       }
-      persist(next)
-      return next
-    },
-    [persist],
+    : null
+  return (
+    <AuthContext.Provider
+      value={{
+        profile,
+        user,
+        isAuthenticated: !!profile,
+        isReady,
+        error,
+        refresh,
+        startLogin,
+        saveProfile,
+        updateUser,
+        signOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
   )
-
-  const signInAs = useCallback(
-    async (role: Role) => {
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      const next = role === 'guardian' ? demoGuardian : demoUser
-      persist(next)
-      return next
-    },
-    [persist],
-  )
-
-  const signUp = useCallback(
-    async (payload: SignUpPayload) => {
-      await new Promise((resolve) => setTimeout(resolve, 650))
-      const next: User = {
-        id: `usr_${Date.now()}`,
-        name: payload.name,
-        preferredName: payload.preferredName?.trim() || payload.name.split(' ')[0],
-        email: payload.email.trim().toLowerCase(),
-        role: payload.role,
-        ageRange: payload.ageRange,
-        interactionPreference: payload.interactionPreference,
-        relationship: payload.relationship,
-        subjectName: payload.subjectName ?? (payload.role === 'guardian' ? 'Nara' : undefined),
-        avatarInitials: initials(payload.name) || 'S',
-        joinedAt: new Date().toISOString().slice(0, 10),
-      }
-      persist(next)
-      return next
-    },
-    [persist],
-  )
-
-  const updateUser = useCallback(
-    (patch: Partial<User>) => {
-      setUser((current) => {
-        if (!current) return current
-        const next = { ...current, ...patch }
-        writeStorage(STORAGE_KEY, next)
-        return next
-      })
-    },
-    [],
-  )
-
-  const signOut = useCallback(() => persist(null), [persist])
-
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      user,
-      isAuthenticated: Boolean(user),
-      isReady,
-      signIn,
-      signInAs,
-      signUp,
-      updateUser,
-      signOut,
-    }),
-    [user, isReady, signIn, signInAs, signUp, updateUser, signOut],
-  )
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
 export function homeRouteFor(role: Role) {
   return role === 'guardian' ? '/app/guardian' : '/app/user'
 }

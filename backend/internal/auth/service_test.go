@@ -57,11 +57,12 @@ func TestProfilePreferencesAndConsentUseOwnerTransaction(t *testing.T) {
 
 	r = testutil.Request(t, pool, owner)
 	r.Body = map[string]any{
-		"personality":    "friendly",
-		"voice":          "cedar",
-		"listen_first":   false,
-		"memory_enabled": true,
-		"version":        float64(1),
+		"personality":          "friendly",
+		"voice":                "cedar",
+		"listen_first":         false,
+		"memory_enabled":       true,
+		"mood_history_enabled": true,
+		"version":              float64(1),
 	}
 	if _, err = service.Handlers()["setPreferences"](context.Background(), r); err != nil {
 		t.Fatal(err)
@@ -71,6 +72,10 @@ func TestProfilePreferencesAndConsentUseOwnerTransaction(t *testing.T) {
 	}
 	for _, callback := range r.AfterCommit {
 		callback()
+	}
+	var moodEnabled bool
+	if err := pool.QueryRow(context.Background(), `SELECT mood_history_enabled FROM preferences WHERE owner_id=$1`, owner).Scan(&moodEnabled); err != nil || !moodEnabled {
+		t.Fatalf("mood preference did not persist: %v", err)
 	}
 	if cancelled != 1 {
 		t.Fatalf("preference update did not cancel active owner context: %d", cancelled)

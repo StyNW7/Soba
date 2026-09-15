@@ -1,0 +1,25 @@
+services:
+  kokoro:
+    image: soba-kokoro:puck-v1
+    build:
+      context: ./deploy/kokoro
+    restart: unless-stopped
+    mem_limit: 1400m
+    cpus: 1.9
+    pids_limit: 64
+    read_only: true
+    tmpfs:
+      # phonemizer loads its temporary copy of the eSpeak shared library here.
+      - /tmp:size=64m,mode=1777,exec
+    volumes:
+      - /opt/soba/shared/kokoro:/models:ro
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 15s
+      timeout: 3s
+      start_period: 60s
+      retries: 3

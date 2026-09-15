@@ -20,6 +20,7 @@ sections, feature rows, diagrams, and known source limits.
 | [Frontend specification](Frontend-Spec.md) | Routes, screens, forms, state handling, accessibility, and mobile bridges |
 | [Database specification](Database-Spec.md) | Tables, relationships, constraints, indexes, queries, and deletion order |
 | [Voice and device specification](Voice-Device-Spec.md) | Audio protocol, conversation state, provider adapters, firmware, pairing, controls, and OTA |
+| [AssemblyAI and Gemini setup](Voice-Provider-Setup.md) | Provider selection, English streaming limit, live checks, and content-review gate |
 | [Operations specification](Operations-Spec.md) | Environments, secrets, deployment, monitoring, backup, recovery, retention, and release roles |
 | [Acceptance tests](Acceptance-Tests.md) | Requirement coverage, failure cases, privacy checks, and delivery evidence |
 | [OpenAPI contract](contracts/openapi.yaml) | Normative HTTP paths, fields, bounds, status codes, and authentication rules |

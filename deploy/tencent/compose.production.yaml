@@ -1,0 +1,7 @@
+services:
+  api:
+    environment:
+      APP_ENV: production
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?Set the public HTTPS origin}
+      ALLOWED_WEB_ORIGINS: ${PUBLIC_BASE_URL:?Set the public HTTPS origin}
+      OIDC_REDIRECT_URI: ${PUBLIC_BASE_URL:?Set the public HTTPS origin}/v1/auth/callback

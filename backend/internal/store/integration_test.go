@@ -57,8 +57,8 @@ func TestPostgresMigrationsAndInvariants(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM schema_migrations`).Scan(&migrationCount); err != nil {
 		t.Fatalf("count applied migrations: %v", err)
 	}
-	if migrationCount != 3 {
-		t.Fatalf("got %d applied migrations, want 3", migrationCount)
+	if migrationCount != 5 {
+		t.Fatalf("got %d applied migrations, want 4", migrationCount)
 	}
 	if err := Migrate(ctx, pool); err != nil {
 		t.Fatalf("second Migrate returned error: %v", err)

@@ -39,8 +39,8 @@ func TestEmbeddedMigrations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadMigrations returned error: %v", err)
 	}
-	if len(migrations) != 3 {
-		t.Fatalf("got %d embedded migrations, want 3", len(migrations))
+	if len(migrations) != 5 {
+		t.Fatalf("got %d embedded migrations, want 4", len(migrations))
 	}
 	if migrations[1].name != "initial" || migrations[2].name != "mobile_auth_time" || migrations[3].name != "idempotency_resources" {
 		t.Fatalf("unexpected migration names: %#v", migrations)

@@ -150,7 +150,7 @@ The frontend may build against the contract fixtures while backend work proceeds
 Software fields, paths, states, and transactions are specified. The remaining work is not unspecified CRUD design: it is approval or empirical evidence that cannot be inferred from Notion.
 
 - Product must accept the proposed 18+ pilot boundary and define the subsequent minor policy.
-- Qualified reviewers must approve scripts and measurable classifier acceptance thresholds.
+- September 13 pilot decision: the project owner removed the independent-review prerequisite for voice activation and authorized the prepared fallback responses. Runtime content validity, response checks and consent remain required. Classifier quality is not established by this activation.
 - The team must approve processor choice, data terms, deployment region, and budget.
 - Hardware owners must finalize board mapping, battery/charging/enclosure design, and relevant physical tests.
 - Runtime tests must establish real speech quality, mobile provisioning, notification behavior, and performance.
@@ -163,3 +163,7 @@ These are explicit release gates in [Operations-Spec.md](implementation/Operatio
 | --- | --- |
 | 1.0 | Source reading and architecture proposal; route/schema outlines |
 | 2.0.0 | Exact OpenAPI/JSON contracts, executable SQL, screen-level spec, state machines, concrete reference adapters, operational rules, acceptance matrix, and executable validation |
+
+## September 13 product decision: voice access and language
+
+The owner removed the separate processing-consent gate and Indonesian language selection. Voice uses English, Groq reply generation, AssemblyAI transcription and browser speech output. Prior mandatory processing-policy acceptance requirements are superseded. Age, authentication, sharing and explicit save controls remain. See [current voice setup](implementation/Voice-Provider-Setup.md) for tested capabilities and browser/device limits.

@@ -36,7 +36,9 @@ OIDC settings, current policy version, key version, and a database URL with
 remote TLS.
 
 `VOICE_ENABLED=false` and `ALERTS_ENABLED=false` are safe defaults. Voice can
-be enabled only with Deepgram, OpenAI, and an approved unexpired content pack.
+be enabled only with credentials for each selected provider and an owner-authorized unexpired content pack. The September 13 pilot decision removed independent review as a prerequisite for voice activation; it did not remove runtime reply checks.
+Deepgram/OpenAI remain the defaults. See [AssemblyAI and Gemini setup](Voice-Provider-Setup.md)
+for the alternative adapters and their English-language restriction.
 Alerts can be enabled only with FCM project configuration and Google workload
 identity or application credentials. `MINOR_ENROLLMENT_ENABLED=true` is
 rejected by the current pilot policy.

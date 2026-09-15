@@ -5,6 +5,14 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/v1/:path*",
+      "destination": "https://put-lift-car-carries.trycloudflare.com/v1/:path*"
+    },
+    {
+      "source": "/health/:path*",
+      "destination": "https://put-lift-car-carries.trycloudflare.com/health/:path*"
+    },
+    {
       "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }

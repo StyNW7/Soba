@@ -35,7 +35,7 @@ func (p *Pipeline) Respond(ctx context.Context, request ConversationRequest) (Co
 	}
 
 	replyRequest := ReplyRequest{
-		Locale: request.Locale, Transcript: request.Transcript, Recent: boundMessages(request.Recent, 12), Personality: truncateRunes(request.Personality, 2000), ListenFirst: request.ListenFirst, Policy: request.Policy, Memories: boundMemories(request.Memories, 10), Assessment: assessment,
+		Locale: request.Locale, Transcript: request.Transcript, Recent: boundMessages(request.Recent, 12), Personality: truncateRunes(request.Personality, 2000), ListenFirst: request.ListenFirst, Policy: request.Policy, MoodCheckIns: request.MoodCheckIns, Memories: boundMemories(request.Memories, 10), Assessment: assessment,
 	}
 	replyCtx, cancel := boundedContext(ctx, p.replyTimeout)
 	candidate, err := p.model.Reply(replyCtx, replyRequest)

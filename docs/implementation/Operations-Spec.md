@@ -95,7 +95,7 @@ Restore sequence: block user traffic and jobs; restore DB/object state; replay t
 | Mobile delivery | Frontend/mobile lead | Real iOS/Android login, permissions, pairing, push navigation |
 | Firmware and device | Firmware/hardware lead | Capture/playback, mute, OTA rollback, enclosure/power tests |
 | Speech performance | Backend + QA | Indonesian evaluation set, end-to-end latency, cancellation tests |
-| Support policy/content | Product + qualified reviewer | Approved scripts, classifier thresholds, age rules, escalation boundaries |
+| Support policy/content | Product owner | Authorized fallback text and escalation boundaries; no claim of clinical validation |
 | Provider/data policy | Product/privacy owner | Retention/training/region terms and approved processor disclosures |
 | Recovery | Operations owner | Restore drill, deletion replay, alert cancellation/duplicate tests |
 | Product scope | Product owner | All 22 Notion requirements accepted against Acceptance-Tests.md |

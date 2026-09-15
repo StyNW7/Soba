@@ -15,32 +15,22 @@ interface LogoProps {
 
 export function Logo({ to = '/', className, variant = 'dark', showWordmark = true }: LogoProps) {
   const content = (
-    <span className={cn('group/logo inline-flex items-center gap-2.5', className)}>
-      <span
-        className={cn(
-          'relative flex h-9 w-9 items-center justify-center rounded-[13px] shadow-inset transition-transform duration-300 ease-soba group-hover/logo:scale-105',
-          variant === 'dark'
-            ? 'bg-gradient-to-br from-brown-500 to-brown-800'
-            : 'bg-gradient-to-br from-cream to-cream-deep',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute h-[18px] w-[18px] rounded-full border-2',
-            variant === 'dark' ? 'border-custard/80' : 'border-brown/70',
-          )}
-        />
-        <span className="relative h-[7px] w-[7px] rounded-full bg-apricot shadow-[0_0_8px_rgba(212,149,77,0.6)]" />
-      </span>
+    <span
+      role="img"
+      aria-label="Soba"
+      className={cn(
+        'inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#fff7ec] px-2 py-1',
+        variant === 'light' && 'shadow-sm',
+        className,
+      )}
+    >
+      <svg viewBox="355 163 558 580" className="h-10 w-10 shrink-0" aria-hidden="true">
+        <image href="/images/brand/soba-logo.jpeg" width="1254" height="1254" />
+      </svg>
       {showWordmark ? (
-        <span
-          className={cn(
-            'font-serif text-[22px] leading-none tracking-tight',
-            variant === 'dark' ? 'text-brown-dark' : 'text-cream',
-          )}
-        >
-          Soba
-        </span>
+        <svg viewBox="300 750 663 235" className="h-7 w-20" aria-hidden="true">
+          <image href="/images/brand/soba-logo.jpeg" width="1254" height="1254" />
+        </svg>
       ) : null}
     </span>
   )

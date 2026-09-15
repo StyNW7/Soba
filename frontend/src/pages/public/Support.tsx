@@ -1,13 +1,10 @@
-import { CircleHelp, Globe, MapPin, PhoneCall, Stethoscope, Users } from 'lucide-react'
+import { CircleHelp, PhoneCall, Stethoscope, Users } from 'lucide-react'
 import { PageHero } from '../../components/landing/PageHero'
 import { FinalCTA } from '../../components/landing/Sections'
 import { Card } from '../../components/ui/Card'
-import { Badge } from '../../components/ui/Badge'
-import { Avatar } from '../../components/ui/Badge'
 import { ButtonLink } from '../../components/ui/Button'
 import { Reveal, SectionHeading } from '../../components/ui/Brand'
 import { AlertCard } from '../../components/ui/Feedback'
-import { crisisResources, professionals } from '../../data/mockProfessionals'
 
 const pathways = [
   {
@@ -58,7 +55,10 @@ export default function Support() {
       <section className="py-20 lg:py-24">
         <div className="container-soba">
           <Reveal>
-            <SectionHeading eyebrow="Pathways" title="Three routes out of a difficult moment." />
+            <SectionHeading
+              eyebrow="Pathways"
+              title="Three routes out of a difficult moment."
+            />
           </Reveal>
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {pathways.map((pathway, index) => (
@@ -70,7 +70,9 @@ export default function Support() {
                   <h3 className="mt-5 text-[17px] font-semibold tracking-headline text-brown-dark">
                     {pathway.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{pathway.copy}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+                    {pathway.copy}
+                  </p>
                 </Card>
               </Reveal>
             ))}
@@ -83,52 +85,14 @@ export default function Support() {
           <Reveal>
             <SectionHeading
               eyebrow="Directory"
-              title="Practitioners in the Soba network."
-              description="A sample of the reviewed practitioners available inside the app. Availability shown is indicative, not a booking."
+              title="Find reviewed support resources."
+              description="Sign in to see the resources currently published for SOBA. Availability is provided by each service; SOBA does not book appointments."
             />
           </Reveal>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {professionals.slice(0, 6).map((professional, index) => (
-              <Reveal key={professional.id} delay={index * 60}>
-                <Card padding="lg" className="flex h-full flex-col">
-                  <div className="flex items-start gap-3.5">
-                    <Avatar initials={professional.avatarInitials} size="lg" tone="cream" />
-                    <div className="min-w-0">
-                      <h3 className="truncate text-base font-semibold text-brown-dark">
-                        {professional.name}
-                      </h3>
-                      <p className="text-sm text-ink-secondary">{professional.role}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {professional.specializations.slice(0, 2).map((spec) => (
-                      <Badge key={spec} tone="cream">
-                        {spec}
-                      </Badge>
-                    ))}
-                  </div>
-                  <dl className="mt-5 space-y-2 text-sm text-ink-secondary">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden="true" />
-                      <dd>{professional.location}</dd>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden="true" />
-                      <dd>{professional.languages.join(', ')}</dd>
-                    </div>
-                  </dl>
-                  <p className="mt-5 border-t border-line pt-4 text-sm text-ink-secondary">
-                    Next availability{' '}
-                    <span className="font-semibold text-brown-dark">{professional.nextAvailable}</span>
-                  </p>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
           <Reveal delay={160}>
             <div className="mt-10 text-center">
               <ButtonLink to="/signup" size="lg">
-                Browse the full directory in Soba
+                Find support in Soba
               </ButtonLink>
             </div>
           </Reveal>
@@ -138,11 +102,14 @@ export default function Support() {
       <section className="py-20 lg:py-24">
         <div className="container-soba grid gap-12 lg:grid-cols-[1fr_1.2fr]">
           <Reveal>
-            <SectionHeading eyebrow="Questions" title="Things people ask first." />
+            <SectionHeading
+              eyebrow="Questions"
+              title="Things people ask first."
+            />
             <div className="mt-8">
               <AlertCard tone="urgent" title="Need support now?">
-                Soba is not an emergency service. If there is immediate risk, contact emergency
-                services on 112, or the SEJIWA support line on 119 extension 8.
+                Soba is not an emergency service. If there is immediate risk,
+                contact emergency services in your area.
               </AlertCard>
             </div>
           </Reveal>
@@ -152,10 +119,15 @@ export default function Support() {
               {faqs.map((faq) => (
                 <Card key={faq.q} padding="lg">
                   <h3 className="flex items-start gap-2.5 text-base font-semibold text-brown-dark">
-                    <CircleHelp className="mt-0.5 h-[18px] w-[18px] shrink-0 text-apricot" aria-hidden="true" />
+                    <CircleHelp
+                      className="mt-0.5 h-[18px] w-[18px] shrink-0 text-apricot"
+                      aria-hidden="true"
+                    />
                     {faq.q}
                   </h3>
-                  <p className="mt-2.5 pl-[30px] text-sm leading-relaxed text-ink-secondary">{faq.a}</p>
+                  <p className="mt-2.5 pl-[30px] text-sm leading-relaxed text-ink-secondary">
+                    {faq.a}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -165,20 +137,17 @@ export default function Support() {
 
       <section className="bg-brown py-16 text-cream">
         <div className="container-soba">
-          <h2 className="heading-serif text-[30px] text-cream sm:text-[38px]">Crisis resources</h2>
+          <h2 className="heading-serif text-[30px] text-cream sm:text-[38px]">
+            Crisis resources
+          </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream/70">
-            These services are staffed by people. Use them directly rather than through Soba if
-            something is happening right now.
+            These services are staffed by people. Use them directly rather than
+            through Soba if something is happening right now.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {crisisResources.map((resource) => (
-              <div key={resource.id} className="rounded-3xl border border-cream/15 bg-cream/[0.06] p-6">
-                <p className="text-base font-semibold text-cream">{resource.name}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-cream/70">{resource.detail}</p>
-                <p className="mt-4 font-serif text-2xl text-custard">{resource.contact}</p>
-              </div>
-            ))}
-          </div>
+          <p className="mt-8 text-cream">
+            If there is immediate danger, contact your local emergency service
+            or go to the nearest emergency department.
+          </p>
         </div>
       </section>
 
