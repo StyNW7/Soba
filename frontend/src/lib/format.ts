@@ -23,3 +23,20 @@ export function initials(name: string) {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('')
 }
+
+const E164 = /^\+[1-9][0-9]{6,14}$/
+
+export function normalizePhone(input: string) {
+  const compact = input.replace(/[\s()./-]/g, '')
+  if (compact.startsWith('+')) return compact
+  if (compact.startsWith('0')) return `+62${compact.slice(1)}`
+  if (compact.startsWith('62')) return `+${compact}`
+  return compact
+}
+
+export function isValidPhone(value: string) {
+  return E164.test(value)
+}
+
+export const PHONE_HINT =
+  'Use the international format with a country code, for example +6281297894752.'

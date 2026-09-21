@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 import { Screen, Panel, Field, Feedback, RemoteState } from './shared'
 import { inputClass, useRemote, useAction, words } from './state'
+import { isValidPhone, normalizePhone, PHONE_HINT } from '../../lib/format'
 import { LinksPanel } from './Connections'
 
 export function SettingsPage() {
@@ -47,7 +48,14 @@ function ProfileForm({
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault()
-          void action.run(() => save(form))
+          void action.run(() => {
+            const normalized = normalizePhone(form.shared_phone ?? '')
+            if (normalized && !isValidPhone(normalized))
+              return Promise.reject(new Error(PHONE_HINT))
+            const next = { ...form, shared_phone: normalized || null }
+            setForm(next)
+            return save(next)
+          })
         }}
       >
         <Field label="Display name">
@@ -63,10 +71,16 @@ function ProfileForm({
           <input
             className={inputClass}
             type="tel"
-            placeholder="+62…"
+            placeholder="+6281297894752"
             value={form.shared_phone ?? ''}
             onChange={(e) =>
               setForm({ ...form, shared_phone: e.target.value || null })
+            }
+            onBlur={(e) =>
+              setForm({
+                ...form,
+                shared_phone: normalizePhone(e.target.value) || null,
+              })
             }
           />
         </Field>

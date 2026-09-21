@@ -16,6 +16,7 @@ import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 import { Screen, Panel, Field, Feedback, RemoteState } from './shared'
 import { inputClass, useRemote, useAction, date, words } from './state'
+import { isValidPhone, normalizePhone, PHONE_HINT } from '../../lib/format'
 
 export function CirclePage() {
   const contacts = useRemote<Contact[]>('/v1/trusted-contacts', true)
@@ -36,11 +37,15 @@ export function CirclePage() {
           onSubmit={(e) => {
             e.preventDefault()
             void action.run(async () => {
+              const normalized = normalizePhone(phone)
+              setPhone(normalized)
+              if (normalized && !isValidPhone(normalized))
+                throw new Error(PHONE_HINT)
               await api('/v1/trusted-contacts', {
                 method: 'POST',
                 body: {
                   display_name: name,
-                  phone: phone || null,
+                  phone: normalized || null,
                   relationship,
                 },
               })
@@ -63,9 +68,10 @@ export function CirclePage() {
             <input
               className={inputClass}
               type="tel"
-              placeholder="+62…"
+              placeholder="+6281297894752"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onBlur={(e) => setPhone(normalizePhone(e.target.value))}
             />
           </Field>
           <Field label="Relationship">
@@ -119,11 +125,15 @@ function ContactCard({
         onSubmit={(e) => {
           e.preventDefault()
           void action.run(async () => {
+            const normalized = normalizePhone(phone)
+            setPhone(normalized)
+            if (normalized && !isValidPhone(normalized))
+              throw new Error(PHONE_HINT)
             await api(`/v1/trusted-contacts/${contact.id}`, {
               method: 'PATCH',
               body: {
                 display_name: name,
-                phone: phone || null,
+                phone: normalized || null,
                 version: contact.version,
               },
             })
@@ -143,8 +153,11 @@ function ContactCard({
         <Field label="Phone">
           <input
             className={inputClass}
+            type="tel"
+            placeholder="+6281297894752"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            onBlur={(e) => setPhone(normalizePhone(e.target.value))}
           />
         </Field>
         <p>
