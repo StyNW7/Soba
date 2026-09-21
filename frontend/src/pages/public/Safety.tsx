@@ -1,6 +1,6 @@
 import { Ban, Database, Download, Eye, HeartHandshake, LockKeyhole, Shield, Trash2 } from 'lucide-react'
 import { PageHero } from '../../components/landing/PageHero'
-import { FinalCTA, SafetySection } from '../../components/landing/Sections'
+import { FinalCTA } from '../../components/landing/Sections'
 import { Card } from '../../components/ui/Card'
 import { Reveal, SectionHeading } from '../../components/ui/Brand'
 import { AlertCard } from '../../components/ui/Feedback'
@@ -142,7 +142,6 @@ export default function Safety() {
         </div>
       </section>
 
-      <SafetySection />
       <FinalCTA />
     </>
   )
