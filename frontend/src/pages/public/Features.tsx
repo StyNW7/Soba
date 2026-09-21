@@ -13,7 +13,7 @@ import {
   Wind,
 } from 'lucide-react'
 import { PageHero } from '../../components/landing/PageHero'
-import { EcosystemSection, FeatureGrid, FinalCTA, RoleSection } from '../../components/landing/Sections'
+import { EcosystemSection, FeatureGrid, FinalCTA } from '../../components/landing/Sections'
 import { Reveal, SectionHeading } from '../../components/ui/Brand'
 
 const userFeatures = [
@@ -152,7 +152,6 @@ export default function Features() {
         </div>
       </section>
 
-      <RoleSection />
       <FinalCTA />
     </>
   )

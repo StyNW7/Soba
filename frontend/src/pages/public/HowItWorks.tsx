@@ -1,6 +1,6 @@
 import { CheckCircle2, Cpu, MessagesSquare, NotebookPen, ShieldCheck, UserRoundCheck } from 'lucide-react'
 import { PageHero } from '../../components/landing/PageHero'
-import { FinalCTA, JourneySection } from '../../components/landing/Sections'
+import { FinalCTA } from '../../components/landing/Sections'
 import { Card } from '../../components/ui/Card'
 import { Reveal, SectionHeading } from '../../components/ui/Brand'
 import { PhoneMockup } from '../../components/landing/Mockups'
@@ -43,8 +43,6 @@ export default function HowItWorks() {
         title="From a first sentence to the right kind of support."
         description="Soba is built around one journey. Everything else in the product exists to serve it."
       />
-
-      <JourneySection />
 
       <section className="py-20 lg:py-24">
         <div className="container-soba">

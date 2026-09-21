@@ -1,6 +1,5 @@
 import { Hero, TrustStrip } from '../../components/landing/Hero'
 import {
-  EcosystemSection,
   FinalCTA,
   JourneySection,
   ProblemSection,
@@ -15,7 +14,6 @@ export default function Home() {
       <TrustStrip />
       <ProblemSection />
       <JourneySection />
-      <EcosystemSection />
       <RoleSection />
       <SafetySection />
       <FinalCTA />
