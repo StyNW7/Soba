@@ -178,6 +178,12 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg platform.Config) (*App, er
 	if cfg.TTSProvider == "gemini" {
 		tts = speech.NewGeminiTTS(speech.GeminiTTSConfig{APIKey: cfg.GeminiKey, Model: cfg.TTSModel})
 	}
+	if cfg.TTSProvider == "elevenlabs" {
+		tts = speech.NewElevenLabsTTS(speech.ElevenLabsTTSConfig{APIKey: cfg.ElevenLabsKey, Model: cfg.TTSModel, VoiceID: cfg.ElevenLabsVoiceID})
+	}
+	if cfg.TTSFallbackProvider == "groq" {
+		tts = speech.FallbackTTS{Primary: tts, Secondary: speech.NewGroqTTS(speech.GroqTTSConfig{APIKey: cfg.GroqKey})}
+	}
 	voiceEngine, err := conversation.NewVoiceEngine(voiceService, stt, tts, pipeline)
 	if err != nil {
 		release()

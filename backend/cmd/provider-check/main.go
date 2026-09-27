@@ -69,6 +69,9 @@ func check() error {
 	if os.Getenv("TTS_PROVIDER") == "kokoro" {
 		tts = speech.NewKokoroTTS(speech.KokoroTTSConfig{Endpoint: os.Getenv("KOKORO_TTS_URL")})
 	}
+	if os.Getenv("TTS_PROVIDER") == "elevenlabs" {
+		tts = speech.NewElevenLabsTTS(speech.ElevenLabsTTSConfig{APIKey: os.Getenv("ELEVENLABS_API_KEY"), Model: os.Getenv("TTS_MODEL"), VoiceID: os.Getenv("ELEVENLABS_VOICE_ID")})
+	}
 	if err = tts.Synthesize(ctx, speech.TTSRequest{Text: "This is a voice connection test for Soba.", Approved: true, Locale: "en-US"}, &audio); err != nil {
 		return fmt.Errorf("Speech output: %w", err)
 	}

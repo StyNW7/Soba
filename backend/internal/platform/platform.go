@@ -20,6 +20,7 @@ import (
 
 type Config struct {
 	KokoroURL, AzureSpeechKey, AzureSpeechRegion                                             string
+	ElevenLabsKey, ElevenLabsVoiceID, TTSFallbackProvider                                    string
 	STTProvider, TextProvider, TTSProvider, AssemblyAIKey, GeminiKey, OpenRouterKey, GroqKey string
 	Env, Addr, PublicURL, DatabaseURL, PolicyVersion                                         string
 	Origins                                                                                  []string

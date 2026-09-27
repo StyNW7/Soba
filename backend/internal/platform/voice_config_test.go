@@ -124,3 +124,29 @@ func TestKokoroConfiguration(t *testing.T) {
 		t.Fatal("wrong voice accepted")
 	}
 }
+
+func TestElevenLabsWithGroqFallbackConfiguration(t *testing.T) {
+	c := Config{VoiceEnabled: true, STTProvider: "assemblyai", TextProvider: "groq", TTSProvider: "elevenlabs", TTSFallbackProvider: "groq", AssemblyAIKey: "test", GroqKey: "test", ContentPackPath: "pack", ElevenLabsKey: "test", ElevenLabsVoiceID: "bIHbv24MWmeRgasZH58o"}.WithVoiceDefaults()
+	if c.TTSModel != "eleven_flash_v2_5" {
+		t.Fatal("wrong ElevenLabs model")
+	}
+	if err := c.ValidateVoice(); err != nil {
+		t.Fatal(err)
+	}
+	if c.VoiceProviders()[2] != "ElevenLabs eleven_flash_v2_5 with Groq canopylabs/orpheus-v1-english fallback" {
+		t.Fatal("policy omits a speech provider", c.VoiceProviders()[2])
+	}
+	for name, broken := range map[string]func(Config) Config{
+		"missing voice":      func(c Config) Config { c.ElevenLabsVoiceID = ""; return c },
+		"bad voice":          func(c Config) Config { c.ElevenLabsVoiceID = "../v1/user"; return c },
+		"missing key":        func(c Config) Config { c.ElevenLabsKey = ""; return c },
+		"unknown model":      func(c Config) Config { c.TTSModel = "eleven_v3"; return c },
+		"fallback no key":    func(c Config) Config { c.GroqKey = ""; c.TextProvider = "gemini"; c.GeminiKey = "test"; return c },
+		"unknown fallback":   func(c Config) Config { c.TTSFallbackProvider = "kokoro"; return c },
+		"fallback to itself": func(c Config) Config { c.TTSProvider = "groq"; c.TTSModel = "canopylabs/orpheus-v1-english"; return c },
+	} {
+		if broken(c).ValidateVoice() == nil {
+			t.Fatalf("%s accepted", name)
+		}
+	}
+}

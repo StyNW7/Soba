@@ -50,6 +50,9 @@ func (c Config) WithVoiceDefaults() Config {
 	if c.TTSProvider == "browser" {
 		c.TTSModel = "en-US"
 	}
+	if c.TTSProvider == "elevenlabs" && c.TTSModel == "" {
+		c.TTSModel = "eleven_flash_v2_5"
+	}
 	if c.TTSProvider == "groq" && c.TTSModel == "" {
 		c.TTSModel = "canopylabs/orpheus-v1-english"
 	}
@@ -111,6 +114,14 @@ func (c Config) ValidateVoice() error {
 		if c.TTSModel != "canopylabs/orpheus-v1-english" {
 			return fmt.Errorf("Groq speech requires Orpheus English")
 		}
+	case "elevenlabs":
+		ttsKey = c.ElevenLabsKey
+		if c.TTSModel != "eleven_flash_v2_5" && c.TTSModel != "eleven_turbo_v2_5" && c.TTSModel != "eleven_multilingual_v2" {
+			return fmt.Errorf("ElevenLabs speech requires a supported model")
+		}
+		if c.VoiceEnabled && !regexp.MustCompile(`^[A-Za-z0-9]{20}$`).MatchString(c.ElevenLabsVoiceID) {
+			return fmt.Errorf("ELEVENLABS_VOICE_ID must be an ElevenLabs voice ID")
+		}
 	case "browser":
 		ttsKey = "browser"
 	case "openai":
@@ -118,6 +129,18 @@ func (c Config) ValidateVoice() error {
 		ttsKey = c.GeminiKey
 	default:
 		return fmt.Errorf("unsupported TTS_PROVIDER")
+	}
+	switch c.TTSFallbackProvider {
+	case "":
+	case "groq":
+		if c.TTSProvider == "groq" {
+			return fmt.Errorf("TTS_FALLBACK_PROVIDER must differ from TTS_PROVIDER")
+		}
+		if c.VoiceEnabled && strings.TrimSpace(c.GroqKey) == "" {
+			return fmt.Errorf("Groq speech fallback requires GROQ_API_KEY")
+		}
+	default:
+		return fmt.Errorf("unsupported TTS_FALLBACK_PROVIDER")
 	}
 	if c.STTProvider == "assemblyai" && (c.STTLanguage != "en" || c.STTModel != "universal-3-5-pro") {
 		return fmt.Errorf("AssemblyAI integration requires STT_LANGUAGE=en and STT_MODEL=universal-3-5-pro")
@@ -134,6 +157,10 @@ func (c Config) SupportsVoiceLocale(locale string) bool {
 
 func (c Config) VoiceProviders() []string {
 	c = c.WithVoiceDefaults()
-	names := map[string]string{"kokoro": "Self-hosted Kokoro", "azure": "Microsoft Azure", "browser": "Browser speech", "groq": "Groq", "deepgram": "Deepgram", "assemblyai": "AssemblyAI", "openai": "OpenAI", "gemini": "Google Gemini", "openrouter": "OpenRouter / Google AI Studio"}
-	return []string{names[c.STTProvider] + " " + c.STTModel, names[c.TextProvider] + " " + c.TextModel, names[c.TTSProvider] + " " + c.TTSModel}
+	names := map[string]string{"kokoro": "Self-hosted Kokoro", "azure": "Microsoft Azure", "browser": "Browser speech", "groq": "Groq", "deepgram": "Deepgram", "assemblyai": "AssemblyAI", "openai": "OpenAI", "gemini": "Google Gemini", "openrouter": "OpenRouter / Google AI Studio", "elevenlabs": "ElevenLabs"}
+	tts := names[c.TTSProvider] + " " + c.TTSModel
+	if c.TTSFallbackProvider == "groq" {
+		tts += " with Groq canopylabs/orpheus-v1-english fallback"
+	}
+	return []string{names[c.STTProvider] + " " + c.STTModel, names[c.TextProvider] + " " + c.TextModel, tts}
 }
