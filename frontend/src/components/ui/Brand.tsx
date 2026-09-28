@@ -19,7 +19,7 @@ export function Logo({ to = '/', className, variant = 'dark', showWordmark = tru
       role="img"
       aria-label="Soba"
       className={cn(
-        'inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#fff7ec] px-2 py-1',
+        'inline-flex shrink-0 items-center gap-2 rounded-xl px-2 py-1',
         variant === 'light' && 'shadow-sm',
         className,
       )}
