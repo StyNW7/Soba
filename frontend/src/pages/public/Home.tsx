@@ -1,10 +1,11 @@
 import { Hero, TrustStrip } from '../../components/landing/Hero'
 import {
+  AboutSection,
+  FeaturesSection,
   FinalCTA,
-  JourneySection,
-  ProblemSection,
-  RoleSection,
+  HowItWorksSection,
   SafetySection,
+  SupportSection,
 } from '../../components/landing/Sections'
 
 export default function Home() {
@@ -12,10 +13,11 @@ export default function Home() {
     <>
       <Hero />
       <TrustStrip />
-      <ProblemSection />
-      <JourneySection />
-      <RoleSection />
+      <AboutSection />
+      <HowItWorksSection />
+      <FeaturesSection />
       <SafetySection />
+      <SupportSection />
       <FinalCTA />
     </>
   )

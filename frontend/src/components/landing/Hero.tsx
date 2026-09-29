@@ -66,7 +66,7 @@ export function Hero() {
                     aria-hidden="true"
                   />
                 </ButtonLink>
-                <ButtonLink to="/how-it-works" variant="secondary" size="lg">
+                <ButtonLink to="/#how-it-works" variant="secondary" size="lg">
                   See How It Works
                 </ButtonLink>
               </div>

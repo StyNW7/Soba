@@ -11,9 +11,16 @@ interface LogoProps {
   className?: string
   variant?: 'dark' | 'light'
   showWordmark?: boolean
+  wordmarkClassName?: string
 }
 
-export function Logo({ to = '/', className, variant = 'dark', showWordmark = true }: LogoProps) {
+export function Logo({
+  to = '/',
+  className,
+  variant = 'dark',
+  showWordmark = true,
+  wordmarkClassName,
+}: LogoProps) {
   const content = (
     <span
       role="img"
@@ -28,7 +35,7 @@ export function Logo({ to = '/', className, variant = 'dark', showWordmark = tru
         <image href="/images/brand/soba-logo.png" width="1254" height="1254" />
       </svg>
       {showWordmark ? (
-        <svg viewBox="300 750 663 235" className="h-7 w-20" aria-hidden="true">
+        <svg viewBox="300 750 663 235" className={cn('h-7 w-20', wordmarkClassName)} aria-hidden="true">
           <image href="/images/brand/soba-logo.png" width="1254" height="1254" />
         </svg>
       ) : null}

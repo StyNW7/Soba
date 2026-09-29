@@ -9,11 +9,6 @@ import Home from '../pages/public/Home'
 
 // The landing page ships in the initial bundle; everything else is split so the
 // first visit does not pay for the dashboard and charting libraries.
-const About = lazy(() => import('../pages/public/About'))
-const HowItWorks = lazy(() => import('../pages/public/HowItWorks'))
-const Features = lazy(() => import('../pages/public/Features'))
-const SafetyPage = lazy(() => import('../pages/public/Safety'))
-const SupportPage = lazy(() => import('../pages/public/Support'))
 const NotFound = lazy(() => import('../pages/public/NotFound'))
 
 const Login = lazy(() => import('../pages/auth/Login'))
@@ -80,6 +75,8 @@ const GuardianOverview = lazy(() =>
   })),
 )
 
+const legacySections = ['about', 'how-it-works', 'features', 'safety', 'support']
+
 function RouteFallback() {
   return (
     <div
@@ -102,11 +99,14 @@ export function AppRouter() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/safety" element={<SafetyPage />} />
-          <Route path="/support" element={<SupportPage />} />
+          {/* The former public pages are now sections of the home page. */}
+          {legacySections.map((section) => (
+            <Route
+              key={section}
+              path={`/${section}`}
+              element={<Navigate to={`/#${section}`} replace />}
+            />
+          ))}
           <Route path="*" element={<NotFound />} />
         </Route>
 

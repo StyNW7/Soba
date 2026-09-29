@@ -1,13 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Footer, Navbar } from '../components/landing/Navbar'
 
 export function PublicLayout() {
-  const { pathname } = useLocation()
+  const { pathname, hash, key } = useLocation()
+  const previousPath = useRef<string | null>(null)
 
+  // The public site is one page, so section links arrive as `/#section`.
+  // Glide when already on the page; jump when arriving from another URL.
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' })
-  }, [pathname])
+    const samePage = previousPath.current === pathname
+    previousPath.current = pathname
+    const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null
+    if (target) target.scrollIntoView({ behavior: samePage ? 'smooth' : 'instant', block: 'start' })
+    else if (!samePage) window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [pathname, hash, key])
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
